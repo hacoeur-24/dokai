@@ -38,10 +38,13 @@ jobs:
 
       - uses: pnpm/action-setup@v4 # uses the pinned pnpm 10.x from package.json "packageManager"
 
+      # NOTE: do NOT set `registry-url` here. It makes setup-node write an .npmrc with a
+      # placeholder auth token, which pnpm would send to npm instead of performing the OIDC
+      # token exchange — causing a 404/auth failure on publish. Without it, pnpm publishes to the
+      # default npmjs registry and authenticates via the OIDC token (id-token: write).
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          registry-url: https://registry.npmjs.org
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
