@@ -47,6 +47,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
+      # OIDC trusted publishing requires npm >= 11.5.1. `pnpm publish` shells out to the npm CLI
+      # for the actual publish, and the runner's bundled npm (~10.x) is too old to perform the
+      # OIDC token exchange (fails with ENEEDAUTH), so upgrade npm first.
+      - run: npm install -g npm@latest
+
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
