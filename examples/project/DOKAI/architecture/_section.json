@@ -1,0 +1,7 @@
+{
+  "title": "Architecture",
+  "description": "System-level architecture, data flow, and component relationships.",
+  "tags": ["architecture"],
+  "version": "0.1.0",
+  "order": 1
+}

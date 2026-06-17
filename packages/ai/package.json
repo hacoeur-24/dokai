@@ -1,0 +1,61 @@
+{
+  "name": "dokai-ai",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Coding-agent assets for DOKAI: Claude Code commands, the agent-agnostic dokai skill, and the AGENTS.md helper used by the CLI.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./templates/*": "./templates/*"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hacoeur-24/dokai.git",
+    "directory": "packages/ai"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "dokai-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5"
+  },
+  "license": "MIT",
+  "author": "hacoeur-24 (https://github.com/hacoeur-24)",
+  "homepage": "https://github.com/hacoeur-24/dokai#readme",
+  "bugs": {
+    "url": "https://github.com/hacoeur-24/dokai/issues"
+  },
+  "keywords": [
+    "dokai",
+    "claude",
+    "claude-code",
+    "documentation",
+    "templates",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
+}

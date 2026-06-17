@@ -1,0 +1,15 @@
+{
+  "_comment": "IDE-facing tsconfig. Covers both src/ (React app) and plugin/ (Node Vite plugin) so editors like VS Code resolve any file in either folder against a real project. CLI typecheck uses the narrower tsconfig.app.json + tsconfig.plugin.json explicitly via the `typecheck` npm script.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client", "node"],
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "plugin/**/*"],
+  "exclude": ["dist", "node_modules", ".turbo"]
+}

@@ -1,0 +1,60 @@
+name: Release
+
+# Publishes all public packages to the npm registry when a version tag is pushed, using
+# npm Trusted Publishing (OIDC) — no long-lived NPM token or secret required.
+#
+# ONE-TIME SETUP (in this order — trusted publishers can only be configured for packages that
+# already exist on npm, so the first release is published manually):
+#   1. Bootstrap the first release locally (creates all four packages on npm):
+#        npm login
+#        pnpm build && pnpm publish -r --access public --no-git-checks
+#   2. On npmjs.com, for EACH package (dokai, dokai-core, dokai-ui, dokai-ai):
+#        Settings -> Trusted Publisher -> GitHub Actions
+#        Organization/user: hacoeur-24   Repository: dokai   Workflow: release.yml
+#   3. After that, every release is fully automated via this workflow (see below).
+#
+# CUTTING A RELEASE (after setup):
+#   1. Bump the four packages/*/package.json versions (in lockstep) and update CHANGELOG.md.
+#   2. git commit -am "release: vX.Y.Z" && git tag vX.Y.Z && git push origin main --tags
+#   3. This workflow builds, gates (typecheck/lint/test), and publishes via OIDC with provenance.
+#
+# Requirements: pnpm 10.x (pinned via root package.json "packageManager"; pnpm 11 currently has an
+# OIDC regression — pnpm/pnpm#11513) and Node >= 22.14 (.nvmrc resolves to 22.x).
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # uses the pinned pnpm 10.x from package.json "packageManager"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+      - run: pnpm test
+
+      # No NODE_AUTH_TOKEN: pnpm authenticates to npm via the OIDC token (id-token: write) once a
+      # Trusted Publisher is configured for each package on npmjs.com.
+      - name: Publish to npm
+        run: pnpm publish -r --access public --no-git-checks --provenance

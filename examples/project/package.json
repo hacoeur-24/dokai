@@ -1,0 +1,30 @@
+{
+  "name": "example-project",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example pnpm + Turborepo workspace used as a fixture for dokai integration tests and local manual testing.",
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dokai": "dokai dev --port 8128",
+    "dokai:build": "dokai build",
+    "dokai:preview": "dokai preview",
+    "dokai:generate": "dokai generate",
+    "dokai:update": "dokai update"
+  },
+  "devDependencies": {
+    "dokai": "workspace:^",
+    "dokai-ai": "workspace:^",
+    "dokai-core": "workspace:^",
+    "dokai-ui": "workspace:^"
+  }
+}

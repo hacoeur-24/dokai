@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.turbo/
+**/.turbo/
+**/.vite/
+coverage/
+**/coverage/
+*.tsbuildinfo
+pnpm-lock.yaml
+release/

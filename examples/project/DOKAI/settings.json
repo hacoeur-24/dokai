@@ -1,0 +1,17 @@
+{
+  "projectName": "Example Project Documentation",
+  "theme": {
+    "defaultMode": "system",
+    "primaryColor": "#2563eb",
+    "radius": "medium"
+  },
+  "downloads": {
+    "defaultFormat": "markdown"
+  },
+  "repository": {
+    "type": "turborepo",
+    "structure": "workspace-mapped",
+    "monorepo": true,
+    "turborepo": true
+  }
+}

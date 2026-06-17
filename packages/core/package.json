@@ -1,0 +1,80 @@
+{
+  "name": "dokai-core",
+  "version": "1.0.0",
+  "private": false,
+  "description": "DOKAI engine: settings, scan, parse, route, search, repo detection. Browser-safe core entry; Node-only utilities under /node.",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hacoeur-24/dokai.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.2",
+    "github-slugger": "^2.0.0",
+    "gray-matter": "^4.0.3",
+    "mdast-util-to-string": "^4.0.0",
+    "minisearch": "^7.1.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "semver": "^7.6.3",
+    "unified": "^11.0.5",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^22.10.0",
+    "@types/semver": "^7.5.8",
+    "tsup": "^8.3.5"
+  },
+  "license": "MIT",
+  "author": "hacoeur-24 (https://github.com/hacoeur-24)",
+  "homepage": "https://github.com/hacoeur-24/dokai#readme",
+  "bugs": {
+    "url": "https://github.com/hacoeur-24/dokai/issues"
+  },
+  "keywords": [
+    "dokai",
+    "documentation",
+    "markdown",
+    "frontmatter",
+    "search",
+    "engine"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,884 @@
+@import 'tailwindcss';
+
+/*
+ * DOKAI visual identity. Custom Tailwind v4 token layer that gives us a refined documentation
+ * tool look — explicitly NOT a generic ShadCN dashboard. Inter for sans, JetBrains Mono for code,
+ * generous spacing, subtle borders, small caps for sidebar group labels.
+ */
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --color-bg: hsl(220 20% 99%);
+  --color-bg-subtle: hsl(220 18% 96%);
+  --color-bg-muted: hsl(220 18% 92%);
+  /* Surface tokens that always read as "elevated" against their parent in BOTH themes. */
+  --color-surface: hsl(0 0% 100%);
+  --color-surface-hover: hsl(220 18% 94%);
+  --color-fg: hsl(225 18% 14%);
+  --color-fg-muted: hsl(225 10% 36%);
+  --color-fg-subtle: hsl(225 8% 56%);
+  --color-border: hsl(220 14% 90%);
+  --color-border-strong: hsl(220 14% 82%);
+  --color-accent: var(--dokai-primary, hsl(221 83% 53%));
+  --color-accent-fg: hsl(0 0% 100%);
+  --color-accent-soft: color-mix(in oklch, var(--color-accent) 14%, white);
+  --color-warn: hsl(34 94% 50%);
+  --color-success: hsl(150 60% 38%);
+  --color-danger: hsl(0 70% 50%);
+
+  /* Status badge palette — works in light mode. Dark mode overrides below. */
+  --tone-draft-bg: hsl(220 18% 92%);
+  --tone-draft-fg: hsl(225 12% 36%);
+  --tone-review-bg: hsl(34 94% 92%);
+  --tone-review-fg: hsl(28 80% 32%);
+  --tone-stable-bg: hsl(150 60% 92%);
+  --tone-stable-fg: hsl(150 60% 28%);
+  --tone-deprecated-bg: hsl(0 70% 94%);
+  --tone-deprecated-fg: hsl(0 60% 38%);
+  --tone-archived-bg: hsl(225 8% 90%);
+  --tone-archived-fg: hsl(225 8% 36%);
+
+  --radius-card: var(--dokai-radius, 0.75rem);
+  --radius-control: calc(var(--radius-card) * 0.55);
+
+  --shadow-card:
+    0 1px 0 hsl(220 18% 88% / 0.6),
+    0 8px 24px -12px hsl(220 30% 18% / 0.08);
+  --shadow-pop: 0 12px 36px -8px hsl(220 30% 18% / 0.16);
+}
+
+[data-theme='dark'] {
+  --color-bg: hsl(225 18% 9%);
+  --color-bg-subtle: hsl(225 16% 12%);
+  --color-bg-muted: hsl(225 14% 16%);
+  /* In dark mode the "elevated" surface is lighter than the parent (mirror of light). */
+  --color-surface: hsl(225 14% 18%);
+  --color-surface-hover: hsl(225 14% 22%);
+  --color-fg: hsl(220 20% 96%);
+  --color-fg-muted: hsl(220 12% 70%);
+  --color-fg-subtle: hsl(220 10% 50%);
+  --color-border: hsl(225 14% 22%);
+  --color-border-strong: hsl(225 14% 30%);
+  --color-accent-soft: color-mix(in oklch, var(--color-accent) 22%, hsl(225 18% 12%));
+  --shadow-card: 0 0 0 1px hsl(225 14% 22% / 0.7);
+  --shadow-pop: 0 18px 40px -12px hsl(225 50% 4% / 0.6);
+
+  /* Status colors with enough background lift to read on a dark surface. */
+  --tone-draft-bg: hsl(225 14% 22%);
+  --tone-draft-fg: hsl(220 16% 84%);
+  --tone-review-bg: hsl(34 60% 22%);
+  --tone-review-fg: hsl(34 90% 80%);
+  --tone-stable-bg: hsl(150 40% 20%);
+  --tone-stable-fg: hsl(150 70% 80%);
+  --tone-deprecated-bg: hsl(0 50% 24%);
+  --tone-deprecated-fg: hsl(0 80% 84%);
+  --tone-archived-bg: hsl(225 10% 22%);
+  --tone-archived-fg: hsl(225 12% 78%);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* User Settings → Font size drives this scale via theme.ts. Because Tailwind sizes are
+       in `rem`, changing the root font-size zooms the whole UI uniformly. */
+    font-size: calc(16px * var(--dokai-font-scale, 0.94));
+  }
+  body.dokai-body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings:
+      'cv11' on,
+      'ss01' on,
+      'ss03' on;
+    font-variant-ligatures: contextual;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--color-accent) 30%, transparent);
+  }
+  pre,
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+    font-feature-settings: 'liga' off;
+  }
+}
+
+/* Custom scrollbar — minimal, brand-agnostic. Always-visible variant (used inside doc bodies,
+   diagrams, etc. where the user expects a persistent scroll indicator). */
+.dokai-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dokai-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+.dokai-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Auto-hide scrollbar — macOS-style. Thumb only appears while the user is scrolling (the
+   `is-scrolling` class is toggled by useAutoHideScroll on scroll events) or hovering the
+   element. Fades out smoothly when both conditions clear. Used in the sidebar tree so the
+   chrome stays clean when you're not actively navigating. */
+.dokai-scroll-auto {
+  scrollbar-gutter: stable;
+  /* Firefox respects color-scheme + scrollbar-color. We force a transparent thumb by default
+     and override when scrolling/hovering. */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 200ms ease;
+}
+.dokai-scroll-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dokai-scroll-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dokai-scroll-auto::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background-color 200ms ease;
+}
+.dokai-scroll-auto.is-scrolling,
+.dokai-scroll-auto:hover {
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+.dokai-scroll-auto.is-scrolling::-webkit-scrollbar-thumb,
+.dokai-scroll-auto:hover::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+}
+.dokai-scroll-auto.is-scrolling::-webkit-scrollbar-thumb:hover,
+.dokai-scroll-auto:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-muted);
+}
+
+/* Markdown body container. Tight prose; documentation-tool spacing. */
+.prose-doc {
+  max-width: 70ch;
+  font-size: 0.97rem;
+  line-height: 1.7;
+  color: var(--color-fg);
+}
+.prose-doc h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0.4rem 0 1.5rem;
+}
+.prose-doc h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 2.4rem 0 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--color-border);
+}
+.prose-doc h3 {
+  font-size: 1.12rem;
+  font-weight: 600;
+  margin: 1.6rem 0 0.6rem;
+}
+.prose-doc h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+  margin: 1.4rem 0 0.5rem;
+}
+.prose-doc p {
+  margin: 0.7rem 0;
+}
+.prose-doc a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklch, var(--color-accent) 40%, transparent);
+}
+.prose-doc a:hover {
+  text-decoration-color: var(--color-accent);
+}
+.prose-doc code:not(pre code) {
+  background: var(--color-bg-muted);
+  border-radius: 0.4em;
+  padding: 0.12em 0.4em;
+  font-size: 0.88em;
+}
+.prose-doc pre {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+.prose-doc pre code {
+  background: transparent;
+  padding: 0;
+}
+.prose-doc ul,
+.prose-doc ol {
+  padding-left: 1.5rem;
+  margin: 0.7rem 0;
+}
+.prose-doc li {
+  margin: 0.25rem 0;
+}
+.prose-doc blockquote {
+  border-left: 3px solid var(--color-accent-soft);
+  padding: 0.4rem 1rem;
+  color: var(--color-fg-muted);
+  margin: 1rem 0;
+  font-style: normal;
+  background: color-mix(in oklch, var(--color-accent) 6%, transparent);
+  border-radius: var(--radius-control);
+}
+.prose-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 1rem 0;
+}
+.prose-doc th,
+.prose-doc td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+}
+.prose-doc th {
+  font-weight: 600;
+  color: var(--color-fg-muted);
+}
+.prose-doc hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+/* Anchor link icon next to headings (revealed on hover). */
+.heading-anchor {
+  opacity: 0;
+  transition: opacity 120ms;
+  margin-left: 0.4rem;
+  font-size: 0.85em;
+  color: var(--color-fg-subtle);
+}
+.prose-doc h1:hover .heading-anchor,
+.prose-doc h2:hover .heading-anchor,
+.prose-doc h3:hover .heading-anchor,
+.prose-doc h4:hover .heading-anchor {
+  opacity: 1;
+}
+
+/* Sidebar small-caps section labels. */
+.dokai-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+
+/* ----- Sidebar document row -----
+   A single document entry in the sidebar tree. Forces a single-line flex row so the
+   icon, title and meta badges always stay on one line and the title gets truncated
+   instead of wrapping. The component renders a single static class on a <NavLink>;
+   active state is detected via NavLink's `aria-current="page"` attribute (we can't
+   use NavLink's function-form className because Radix's Slot in <DocContextMenu>
+   stringifies functions when merging classNames). */
+.dokai-sidebar-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+/* Hover (any non-active row): light accent tint. */
+.dokai-sidebar-row:hover {
+  background: color-mix(in oklch, var(--color-accent) 9%, transparent);
+  color: var(--color-fg);
+}
+/* Active (current page): a darker accent tint + accent icon, matching the design
+   language of the settings nav button. */
+.dokai-sidebar-row[aria-current='page'] {
+  background: color-mix(in oklch, var(--color-accent) 18%, transparent);
+  color: var(--color-fg);
+  font-weight: 500;
+}
+.dokai-sidebar-row[aria-current='page'] .dokai-sidebar-row-icon {
+  opacity: 1;
+  color: var(--color-accent);
+}
+.dokai-sidebar-row[aria-current='page']:hover {
+  background: color-mix(in oklch, var(--color-accent) 22%, transparent);
+}
+.dokai-sidebar-row-icon {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.75;
+}
+.dokai-sidebar-row-title {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dokai-sidebar-row-meta {
+  margin-left: auto;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Folder header — visually heavier than a plain "eyebrow" since it's a parent of
+   document rows. Uppercase + tracking keeps the section-label feel; size matches
+   the doc rows so the hierarchy reads correctly (parent ≥ children). */
+.dokai-sidebar-folder {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.dokai-sidebar-folder-toggle {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0%;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-control);
+  /* Left padding (0.25rem) is calibrated so the chevron's center sits exactly above
+     the vertical line of the children container (which is at `ml-[0.6875rem]`).
+     Math: 0.25 (padding-left) + 0.4375 (chevron half-width 0.875/2) = 0.6875rem. */
+  padding: 0.375rem 0.5rem 0.375rem 0.25rem;
+  color: var(--color-fg-muted);
+  transition: color 120ms ease;
+}
+.dokai-sidebar-folder-toggle:hover {
+  color: var(--color-fg);
+}
+.dokai-sidebar-folder-chevron {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform 140ms ease;
+}
+.dokai-sidebar-folder-icon {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Document card pattern (used on landing/index). */
+.doc-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1rem 1.1rem;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease;
+}
+.doc-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--color-border-strong);
+}
+
+/* ----- Form control normalization -----
+   All form controls should share the same height + radius + border behavior so the
+   settings page reads as a coherent set. */
+.dokai-control {
+  height: 2.25rem; /* 36px */
+  width: 100%;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0 0.625rem;
+  font-size: 0.875rem;
+  color: var(--color-fg);
+  outline: none;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.dokai-control:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 25%, transparent);
+}
+.dokai-control:hover:not(:focus):not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+textarea.dokai-control {
+  height: auto;
+  min-height: 4.5rem;
+  padding: 0.5rem 0.625rem;
+  resize: vertical;
+}
+input[type='color'].dokai-control {
+  padding: 0.125rem;
+  cursor: pointer;
+}
+
+/* Custom checkbox to match the height of other controls and use the accent color. */
+.dokai-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: calc(var(--radius-control) * 0.5);
+  background: var(--color-surface);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+}
+.dokai-checkbox:checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.dokai-checkbox:checked::after {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  background: var(--color-accent-fg);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+}
+.dokai-checkbox:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* "Toggle row" — a checkbox + label pill that matches the height of other controls. */
+.dokai-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+.dokai-toggle:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* ----- Editor pane (rich-text + source mode switcher) -----
+   The pane is just a positioning container. Each underlying editor (Milkdown or SourceEditor)
+   provides its own border + background via `.dokai-milkdown-host` / `.dokai-source-editor-host`.
+   The toolbar floats absolutely in the top-right corner of whichever editor is mounted. */
+.dokai-editor-pane {
+  position: relative;
+}
+.dokai-editor-pane-toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 5;
+}
+.dokai-editor-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.dokai-editor-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  border-radius: calc(var(--radius-control) * 0.7);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.dokai-editor-switcher-btn:hover {
+  color: var(--color-fg);
+  background: var(--color-bg-muted);
+}
+.dokai-editor-switcher-btn[data-active='true'] {
+  background: color-mix(in oklch, var(--color-accent) 14%, transparent);
+  color: var(--color-accent);
+}
+.dokai-editor-switcher-btn[data-active='true']:hover {
+  background: color-mix(in oklch, var(--color-accent) 20%, transparent);
+}
+
+/* ----- Source editor (raw markdown) -----
+   Mirrors the Milkdown host's box (border, radius, surface, padding) so flipping the switcher
+   doesn't change the page layout. Monospaced for markdown editing. */
+.dokai-source-editor-host {
+  position: relative;
+  min-height: 60vh;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.dokai-source-editor {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  padding: 1rem 1.5rem 4rem;
+  /* Top padding leaves room for the floating switcher in the corner. */
+  padding-top: 3rem;
+  caret-color: var(--color-fg);
+  tab-size: 2;
+}
+.dokai-source-editor::placeholder {
+  color: var(--color-fg-subtle);
+}
+
+/* ----- Milkdown / Crepe editor -----
+   Crepe's reset.css sets `.milkdown { background: var(--crepe-color-background) }` with no
+   border-radius. We bypass the issue by making the inner `.milkdown` background transparent
+   AND giving it the same radius as the host — that way we don't need `overflow: hidden` on
+   the host, which would clip Crepe's floating slash-menu/toolbar/link popups when they
+   anchor near the edges of the editor. */
+.dokai-milkdown-host {
+  position: relative;
+  min-height: 60vh;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-fg);
+}
+.dokai-milkdown-host .milkdown {
+  min-height: 60vh;
+  /* Top padding leaves room for the floating mode switcher (top-right) so first-line content
+     doesn't tuck under it. */
+  padding: 3rem 1.5rem 4rem;
+  background: transparent;
+  border-radius: var(--radius-card);
+  --crepe-color-background: var(--color-surface);
+}
+.dokai-milkdown-host .ProseMirror {
+  min-height: 50vh;
+  outline: none !important;
+  caret-color: var(--color-fg) !important;
+  color: var(--color-fg);
+}
+.dokai-milkdown-host .ProseMirror h1,
+.dokai-milkdown-host .ProseMirror h2,
+.dokai-milkdown-host .ProseMirror h3 {
+  color: var(--color-fg);
+  letter-spacing: -0.015em;
+}
+/* The Crepe slash-menu and other floating popovers attach to document.body. We give them a
+   high stacking order so dialogs don't accidentally cover them. */
+.milkdown-slash-menu,
+.milkdown-link-edit,
+.milkdown-link-preview,
+.milkdown-toolbar,
+.milkdown-image-block-menu,
+.milkdown-block-handle {
+  z-index: 1000;
+}
+/* The block-edit "+" handle that appears on hover. */
+milkdown-block-handle {
+  z-index: 1000;
+}
+
+/* Dark-mode override for Crepe's color tokens. `frame.css` is loaded unconditionally and
+   declares the light values; we re-declare just the colors here when the app is in dark mode.
+   These values match `frame-dark.css` from @milkdown/crepe but scoped under our theme attr. */
+[data-theme='dark'] .milkdown {
+  --crepe-color-background: hsl(225 16% 12%);
+  --crepe-color-on-background: hsl(220 20% 96%);
+  --crepe-color-surface: hsl(225 14% 16%);
+  --crepe-color-surface-low: hsl(225 14% 18%);
+  --crepe-color-on-surface: hsl(220 18% 88%);
+  --crepe-color-on-surface-variant: hsl(220 12% 70%);
+  --crepe-color-outline: hsl(225 12% 40%);
+  --crepe-color-primary: hsl(220 16% 80%);
+  --crepe-color-secondary: hsl(225 14% 24%);
+  --crepe-color-on-secondary: hsl(220 18% 88%);
+  --crepe-color-inverse: hsl(220 18% 90%);
+  --crepe-color-on-inverse: hsl(225 18% 14%);
+  --crepe-color-inline-code: hsl(0 70% 70%);
+  --crepe-color-error: hsl(0 70% 70%);
+  --crepe-color-hover: hsl(225 14% 22%);
+  --crepe-color-selected: hsl(225 14% 26%);
+  --crepe-color-inline-area: hsl(225 14% 24%);
+}
+
+/* ----- Interactive feedback -----
+   Every clickable element gets cursor:pointer and a subtle press animation. We restrict the
+   transform to elements without their own transform (avoids fighting layout transitions on
+   the sidebar collapse). The 80ms scale matches native macOS button feedback. */
+@layer base {
+  button:not(:disabled),
+  a,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  summary,
+  .dokai-toggle,
+  [data-clickable] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  button:not(:disabled),
+  a,
+  [role='button'],
+  .dokai-toggle {
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease,
+      box-shadow 120ms ease,
+      transform 80ms ease;
+  }
+
+  button:not(:disabled):active,
+  a:active,
+  [role='button']:active,
+  .dokai-toggle:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Compact icon-only button used in toolbars (sidebar header collapse, diagram controls, etc.). */
+.dokai-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-fg-muted);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    transform 80ms ease;
+}
+.dokai-icon-button:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  color: var(--color-fg);
+}
+.dokai-icon-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.dokai-icon-button:active {
+  transform: scale(0.94);
+}
+
+/* ----- Context menu (Radix) -----
+   Used for the right-click panel on sidebar document rows. Same visual language as the
+   command palette + create dialog. */
+.dokai-context-menu {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 0.25rem;
+  box-shadow: var(--shadow-pop);
+  animation: dokai-popover-in 100ms ease-out;
+  z-index: 1000;
+}
+@keyframes dokai-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.dokai-context-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  font-size: 0.85rem;
+  color: var(--color-fg);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: background-color 120ms ease;
+}
+.dokai-context-item[data-highlighted],
+.dokai-context-item:hover {
+  background: var(--color-bg-muted);
+}
+.dokai-context-item--danger {
+  color: var(--color-danger);
+}
+.dokai-context-item--danger[data-highlighted],
+.dokai-context-item--danger:hover {
+  background: color-mix(in oklch, var(--color-danger) 12%, transparent);
+}
+.dokai-context-separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.25rem 0.125rem;
+}
+
+/* ----- Toast animations ----- */
+@keyframes dokai-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes dokai-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(8px) scale(0.97);
+  }
+}
+.dokai-toast-in {
+  animation: dokai-toast-in 140ms ease-out forwards;
+}
+.dokai-toast-out {
+  animation: dokai-toast-out 160ms ease-in forwards;
+}
+
+/* ----- Search palette (cmdk) -----
+   Folder grouping uses <Command.Group>; cmdk renders headings inside a `[cmdk-group-heading]`
+   div with no styling of its own. We give it sidebar-eyebrow-style padding so each folder
+   header reads as a clear section divider above its items. */
+[cmdk-group-heading] {
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+[cmdk-group]:not(:first-child) [cmdk-group-heading] {
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.65rem;
+}
+
+/* Reuses the context-menu styling for the click-triggered dropdown menu. Same animation,
+   border, padding — only the trigger differs. */
+.dokai-dropdown-menu {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 0.25rem;
+  box-shadow: var(--shadow-pop);
+  animation: dokai-popover-in 100ms ease-out;
+  z-index: 1000;
+  min-width: 11rem;
+}
+.dokai-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  font-size: 0.85rem;
+  color: var(--color-fg);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: background-color 120ms ease;
+}
+.dokai-dropdown-item[data-highlighted],
+.dokai-dropdown-item:hover {
+  background: var(--color-bg-muted);
+}
+
+/* ----- Print stylesheet -----
+   Triggered when the user picks "Download as PDF" — DocView toggles `data-print="true"` on
+   <html>, calls window.print(), then clears the flag. The browser's print dialog handles the
+   actual save-to-PDF step. We hide all chrome and force light colors so the PDF is legible. */
+@media print {
+  html[data-print='true'] {
+    font-size: 14px;
+  }
+  html[data-print='true'] body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  html[data-print='true'] aside,
+  html[data-print='true'] .dokai-doc-actions,
+  html[data-print='true'] .dokai-icon-button,
+  html[data-print='true'] .dokai-context-menu,
+  html[data-print='true'] .dokai-dropdown-menu,
+  html[data-print='true'] [role='dialog'] {
+    display: none !important;
+  }
+  html[data-print='true'] main {
+    overflow: visible !important;
+  }
+  html[data-print='true'] main > div {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  html[data-print='true'] .prose-doc {
+    max-width: none !important;
+    color: #111111 !important;
+  }
+  html[data-print='true'] .prose-doc pre {
+    background: #f6f6f6 !important;
+    border: 1px solid #d1d5db !important;
+  }
+  html[data-print='true'] figure {
+    page-break-inside: avoid;
+  }
+}

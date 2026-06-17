@@ -1,0 +1,47 @@
+{
+  "name": "dokai-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DOKAI — installable npm package providing local-first UI documentation for any repo.",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,yml,yaml}\"",
+    "release": "pnpm build && pnpm publish -r --access public --no-git-checks",
+    "pack:all": "node scripts/pack-release.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "license": "MIT",
+  "author": "hacoeur-24 (https://github.com/hacoeur-24)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hacoeur-24/dokai.git"
+  },
+  "homepage": "https://github.com/hacoeur-24/dokai#readme",
+  "bugs": {
+    "url": "https://github.com/hacoeur-24/dokai/issues"
+  }
+}
