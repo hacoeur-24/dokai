@@ -1,6 +1,6 @@
 {
   "name": "dokai-monorepo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "DOKAI — installable npm package providing local-first UI documentation for any repo.",
   "packageManager": "pnpm@10.28.2",

@@ -1,6 +1,6 @@
 {
   "name": "dokai-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "DOKAI engine: settings, scan, parse, route, search, repo detection. Browser-safe core entry; Node-only utilities under /node.",
   "type": "module",

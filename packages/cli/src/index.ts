@@ -41,8 +41,10 @@ program
   });
 
 program
-  .command('dev')
-  .description('Run the local documentation UI (Vite + middleware) on the configured port.')
+  .command('dev', { isDefault: true })
+  .description(
+    'Run the local documentation UI (Vite + middleware). This is the default command, so bare `dokai` runs it.',
+  )
   .option('--root <path>', 'Repository root.')
   .option('--port <number>', 'Override the default port (8128).', (v) => Number(v))
   .action(async (opts) => {

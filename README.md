@@ -85,6 +85,12 @@ dokai dev                  # http://localhost:8128
 
 `dokai init` detects your repo shape (single package, pnpm / npm / yarn workspaces, or Turborepo) and is fully idempotent: re-running it leaves your existing files untouched and only fills in what is missing — which is exactly how `dokai update` upgrades a project.
 
+**Running the UI.** `dokai init` adds a `dokai` script, so:
+
+- **pnpm / yarn:** `pnpm dokai` or `yarn dokai` (these run scripts without `run`).
+- **npm:** `npm run dokai` — npm has no `npm <script>` shorthand, so `npm dokai` does **not** work; it's `npm run dokai`.
+- **Directly:** bare `dokai` defaults to the dev server, so `npx dokai`, `pnpm exec dokai`, or a global `dokai` all start it too — no `dev` subcommand needed.
+
 ---
 
 ## Daily commands

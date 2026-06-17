@@ -24,6 +24,8 @@ pnpm dokai                 # runs the "dokai dev --port 8128" script init added
 
 Prefer global? `npm install -g dokai-kit`, then `dokai init` and `dokai dev` from any repo.
 
+Bare `dokai` defaults to the dev server, so `dokai` (global), `npx dokai-kit`, or `pnpm exec dokai` all start the UI with no subcommand. With npm scripts it's `npm run dokai` (npm has no `npm <script>` shorthand); `pnpm dokai` / `yarn dokai` work without `run`.
+
 ## Commands
 
 | Command          | What it does                                                                           |

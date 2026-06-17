@@ -1,6 +1,6 @@
 {
   "name": "dokai-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "DOKAI documentation UI (React + Vite + Tailwind + ShadCN) and the Vite plugin that mounts /api middleware in dev and produces a static build.",
   "type": "module",

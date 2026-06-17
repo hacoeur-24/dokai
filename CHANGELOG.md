@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1 — 2026-06-17
+
+- `dev` is now the default command — bare `dokai` (and `npx dokai-kit` / `pnpm exec dokai` / a
+  global `dokai`) starts the documentation UI with no `dev` subcommand needed.
+- First release published through the automated GitHub Actions pipeline (npm Trusted Publishing
+  / OIDC, no token).
+
 ## v1.0.0 — 2026-06-17 — First public release
 
 The first public release of DOKAI: local-first documentation, dropped into any repo
