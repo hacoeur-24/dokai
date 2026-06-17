@@ -35,15 +35,15 @@ importers:
 
   examples/project:
     devDependencies:
-      dokai:
-        specifier: workspace:^
-        version: link:../../packages/cli
       dokai-ai:
         specifier: workspace:^
         version: link:../../packages/ai
       dokai-core:
         specifier: workspace:^
         version: link:../../packages/core
+      dokai-kit:
+        specifier: workspace:^
+        version: link:../../packages/cli
       dokai-ui:
         specifier: workspace:^
         version: link:../../packages/ui

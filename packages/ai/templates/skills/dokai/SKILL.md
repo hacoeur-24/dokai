@@ -6,9 +6,9 @@ description: Use when reading, writing, or updating documentation in a repositor
 # Working with DOKAI
 
 This project uses **DOKAI** for local-first documentation: a `DOKAI/` folder of markdown files,
-committed to Git, served by a local web UI. The engine and UI live in the installed `dokai`
-package — only the `DOKAI/` markdown is part of this repo. Your job, as an agent, is to keep that
-markdown accurate, well-structured, and consistent with the code.
+committed to Git, served by a local web UI. The engine and UI live in the installed `dokai-kit`
+package (its CLI command is `dokai`) — only the `DOKAI/` markdown is part of this repo. Your job,
+as an agent, is to keep that markdown accurate, well-structured, and consistent with the code.
 
 > **Keep the docs in sync.** Whenever you make a significant change to the codebase — a new
 > feature, an API or schema change, an architecture or dependency shift, a removed module — update

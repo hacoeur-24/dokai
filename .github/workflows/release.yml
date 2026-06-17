@@ -8,7 +8,7 @@ name: Release
 #   1. Bootstrap the first release locally (creates all four packages on npm):
 #        npm login
 #        pnpm build && pnpm publish -r --access public --no-git-checks
-#   2. On npmjs.com, for EACH package (dokai, dokai-core, dokai-ui, dokai-ai):
+#   2. On npmjs.com, for EACH package (dokai-kit, dokai-core, dokai-ui, dokai-ai):
 #        Settings -> Trusted Publisher -> GitHub Actions
 #        Organization/user: hacoeur-24   Repository: dokai   Workflow: release.yml
 #   3. After that, every release is fully automated via this workflow (see below).

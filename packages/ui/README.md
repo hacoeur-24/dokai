@@ -2,7 +2,7 @@
 
 The React app and Vite plugin for [DOKAI](https://github.com/hacoeur-24/dokai) — local-first documentation for any repo.
 
-This is an internal package consumed by the [`dokai`](https://www.npmjs.com/package/dokai) CLI. You normally install **`dokai`**, not this package directly.
+This is an internal package consumed by the [`dokai-kit`](https://www.npmjs.com/package/dokai-kit) CLI. You normally install **`dokai-kit`**, not this package directly.
 
 It ships two outputs:
 

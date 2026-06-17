@@ -4,8 +4,8 @@
 
 **Local-first documentation, dropped into any repo with one command.**
 
-[![npm](https://img.shields.io/npm/v/dokai?style=flat-square&color=2563eb)](https://www.npmjs.com/package/dokai)
-[![License](https://img.shields.io/npm/l/dokai?style=flat-square&color=22c55e)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/dokai-kit?style=flat-square&color=2563eb)](https://www.npmjs.com/package/dokai-kit)
+[![License](https://img.shields.io/npm/l/dokai-kit?style=flat-square&color=22c55e)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 
@@ -62,14 +62,14 @@ What you get from a single command:
 
 ## Installation
 
-DOKAI is published on the **public npm registry** — `npm install dokai` works with zero configuration (no scope, no `.npmrc`, no auth). Requires **Node.js 22+**.
+DOKAI ships as the **`dokai-kit`** package on the **public npm registry** — `npm install dokai-kit` works with zero configuration (no scope, no `.npmrc`, no auth). The package is `dokai-kit`; the CLI command it installs is **`dokai`**. Requires **Node.js 22+**.
 
 ```bash
-# 1. Add DOKAI to your project (npm / pnpm / yarn / bun all work)
-pnpm add -D dokai          # npm install -D dokai · yarn add -D dokai · bun add -d dokai
+# 1. Add dokai-kit to your project (npm / pnpm / yarn / bun all work)
+pnpm add -D dokai-kit      # npm install -D dokai-kit · yarn add -D dokai-kit · bun add -d dokai-kit
 
-# 2. Scaffold docs into the repo (idempotent — safe to re-run)
-pnpm exec dokai init       # or: npx dokai init
+# 2. Scaffold docs into the repo (idempotent — safe to re-run); the command is "dokai"
+pnpm exec dokai init       # or: npx dokai-kit init
 
 # 3. Launch the docs UI on http://localhost:8128
 pnpm dokai                 # runs the "dokai dev --port 8128" script init added
@@ -78,7 +78,7 @@ pnpm dokai                 # runs the "dokai dev --port 8128" script init added
 Prefer a global install? It works from any repo with no per-project dependency:
 
 ```bash
-npm install -g dokai
+npm install -g dokai-kit
 dokai init
 dokai dev                  # http://localhost:8128
 ```
@@ -120,7 +120,7 @@ your-repo/
 └─ .gitignore                  # patched with DOKAI cache patterns
 ```
 
-Only your data lands in the repo. The engine, the React UI, and the Vite server all live inside the installed `dokai` package and operate on your `DOKAI/` folder through local `/api` middleware.
+Only your data lands in the repo. The engine, the React UI, and the Vite server all live inside the installed `dokai-kit` package and operate on your `DOKAI/` folder through local `/api` middleware.
 
 ---
 
@@ -141,7 +141,7 @@ Only your data lands in the repo. The engine, the React UI, and the Vite server 
 No. Everything is local — markdown files in your repo, served by a local Vite server. There is no SaaS and no telemetry.
 
 **Do I need a special registry or `.npmrc`?**
-No. DOKAI is published unscoped on the public npm registry, so `npm install dokai` works with zero configuration.
+No. DOKAI is published unscoped on the public npm registry as `dokai-kit`, so `npm install dokai-kit` works with zero configuration.
 
 **I get an engine / Node version warning.**
 DOKAI requires Node.js 22+. Use the bundled `.nvmrc` (`nvm use`) or upgrade Node.
@@ -161,12 +161,12 @@ As plain markdown in `DOKAI/`, committed to Git alongside your code, with full v
 
 Contributions are welcome. This repository is a **pnpm + Turborepo monorepo** that produces four published packages:
 
-| Package         | Published as                                             | Role                                                        |
-| --------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
-| `packages/cli`  | [`dokai`](https://www.npmjs.com/package/dokai)           | `dokai` CLI (init / dev / build / generate / update / bump) |
-| `packages/core` | [`dokai-core`](https://www.npmjs.com/package/dokai-core) | Engine: scan, parse, route, search, repo detection          |
-| `packages/ui`   | [`dokai-ui`](https://www.npmjs.com/package/dokai-ui)     | React app + Vite plugin (the runtime)                       |
-| `packages/ai`   | [`dokai-ai`](https://www.npmjs.com/package/dokai-ai)     | Agent assets: Claude commands + the agent-agnostic skill    |
+| Package         | Published as                                             | Role                                                            |
+| --------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| `packages/cli`  | [`dokai-kit`](https://www.npmjs.com/package/dokai-kit)   | the `dokai` CLI (init / dev / build / generate / update / bump) |
+| `packages/core` | [`dokai-core`](https://www.npmjs.com/package/dokai-core) | Engine: scan, parse, route, search, repo detection              |
+| `packages/ui`   | [`dokai-ui`](https://www.npmjs.com/package/dokai-ui)     | React app + Vite plugin (the runtime)                           |
+| `packages/ai`   | [`dokai-ai`](https://www.npmjs.com/package/dokai-ai)     | Agent assets: Claude commands + the agent-agnostic skill        |
 
 ### Install locally
 
@@ -192,7 +192,7 @@ Run a single package's suite with a turbo filter, e.g. `pnpm --filter dokai-core
 
 ### Use the example project
 
-`examples/project` is a **pnpm + Turborepo** workspace (with stub `apps/web` and `packages/ui-kit` packages) wired to the local build of `dokai` via `workspace:^`. Use it to exercise the CLI end-to-end against a realistic monorepo without publishing anything:
+`examples/project` is a **pnpm + Turborepo** workspace (with stub `apps/web` and `packages/ui-kit` packages) wired to the local build of `dokai-kit` via `workspace:^`. Use it to exercise the CLI end-to-end against a realistic monorepo without publishing anything:
 
 ```bash
 pnpm build                              # make sure the local packages are built first
@@ -201,7 +201,7 @@ pnpm --filter example-project dokai     # boot the docs UI on http://localhost:8
 
 Its `DOKAI/` tree is committed, so the UI has content immediately. Other commands work the same way — `pnpm --filter example-project dokai:build`, `…:generate`, etc. To re-scaffold from scratch, delete `examples/project/DOKAI/` and run `pnpm --filter example-project exec dokai init --yes`.
 
-To dogfood against the example as if you were a brand-new consumer (real tarballs, no workspace links), `pnpm --filter dokai pack` each package and `npm install` the resulting `.tgz` files into a scratch project.
+To dogfood against the example as if you were a brand-new consumer (real tarballs, no workspace links), `pnpm --filter dokai-kit pack` (and the other packages) and `npm install` the resulting `.tgz` files into a scratch project.
 
 ### Contribute
 

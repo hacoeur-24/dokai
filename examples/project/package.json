@@ -22,9 +22,9 @@
     "dokai:update": "dokai update"
   },
   "devDependencies": {
-    "dokai": "workspace:^",
     "dokai-ai": "workspace:^",
     "dokai-core": "workspace:^",
+    "dokai-kit": "workspace:^",
     "dokai-ui": "workspace:^"
   }
 }

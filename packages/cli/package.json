@@ -1,5 +1,5 @@
 {
-  "name": "dokai",
+  "name": "dokai-kit",
   "version": "1.0.0",
   "private": false,
   "description": "DOKAI — installable, local-first documentation product. CLI entry for init, dev, build, generate, update, bump.",

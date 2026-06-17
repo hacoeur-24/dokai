@@ -45,10 +45,10 @@ node ../../packages/cli/dist/index.js dev --port 8128
 
 ## Architecture
 
-Four packages, all published **unscoped to the public npm registry** (`dokai`, `dokai-core`, `dokai-ui`, `dokai-ai`). Turborepo orchestrates the build graph; pnpm workspace links them.
+Four packages, all published **unscoped to the public npm registry** (`dokai-kit` — the CLI, bin `dokai` — plus `dokai-core`, `dokai-ui`, `dokai-ai`). The unscoped name `dokai` is blocked by npm's similarity filter, so the CLI package is `dokai-kit` while its command stays `dokai`. Turborepo orchestrates the build graph; pnpm workspace links them.
 
 ```
-packages/cli/   → dokai       bin: dokai (commander + tsup ESM bundle)
+packages/cli/   → dokai-kit   bin: dokai (commander + tsup ESM bundle)
 packages/core/  → dokai-core  engine — dual entry: "." (browser-safe) and "./node"
 packages/ui/    → dokai-ui    React app + Vite plugin (the runtime)
 packages/ai/    → dokai-ai    agent assets: Claude commands, the dokai skill, AGENTS.md helper
@@ -98,7 +98,7 @@ Publishing uses **npm Trusted Publishing (OIDC)** — no long-lived npm token or
 **One-time setup** (trusted publishers can only be configured for packages that already exist, so the first release is manual):
 
 1. Bootstrap locally — `npm login`, then `pnpm build && pnpm publish -r --access public --no-git-checks` (creates all four packages on npm).
-2. On npmjs.com, for each of `dokai` / `dokai-core` / `dokai-ui` / `dokai-ai`: Settings → Trusted Publisher → GitHub Actions, org `hacoeur-24`, repo `dokai`, workflow `release.yml`.
+2. On npmjs.com, for each of `dokai-kit` / `dokai-core` / `dokai-ui` / `dokai-ai`: Settings → Trusted Publisher → GitHub Actions, org `hacoeur-24`, repo `dokai`, workflow `release.yml`.
 
 **Each release after that (the canonical, tag-driven path):**
 

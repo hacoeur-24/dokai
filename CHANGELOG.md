@@ -3,8 +3,8 @@
 ## v1.0.0 — 2026-06-17 — First public release
 
 The first public release of DOKAI: local-first documentation, dropped into any repo
-with one command. Published unscoped on the public npm registry as `dokai`,
-`dokai-core`, `dokai-ui`, and `dokai-ai`.
+with one command. Published unscoped on the public npm registry as `dokai-kit`
+(the CLI — its command is `dokai`), plus `dokai-core`, `dokai-ui`, and `dokai-ai`.
 
 ### Highlights
 
