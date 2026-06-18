@@ -33,6 +33,7 @@ export function OpenApiExplorer() {
     };
   }, [spec, tryItOut, persistAuth]);
 
+  if (!manifest.data) return null;
   if (manifest.data && !spec) {
     return <p style={{ color: 'var(--color-fg-subtle)' }}>No API spec found for {route}.</p>;
   }
