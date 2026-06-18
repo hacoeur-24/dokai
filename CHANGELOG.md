@@ -10,6 +10,26 @@
   `settings.openapi.allowedHosts`. The static `dokai build` export renders specs read-only.
 - Specs are indexed in search (one entry per spec). New optional `openapi` block in
   `DOKAI/settings.json` (`enabled`, `dir`, `allowedHosts`, `persistAuth`).
+- Full-width site header with GitHub and Application quick-links (configurable via the new
+  `project.githubUrl` / `project.appUrl` settings fields); the global search bar relocated into the
+  header.
+- Create-new flow: a "+" button in the sidebar header opens a modal with a Document / Folder
+  switcher, a location dropdown, and a live slug preview. Folders are created instantly via a new
+  `POST /api/folder` endpoint that writes a `_section.json` file — no content required.
+- Sidebar collapse-all / expand-all toggle: a single button folds or unfolds every section at once;
+  state is seeded from and persisted to `settings.sidebarFoldersCollapsed`.
+- Search filters toggle and custom status filter: a funnel icon reveals filter chips, with a
+  custom-styled status dropdown (replaces the native `<select>`) so the look matches the rest of the
+  UI.
+- Custom `Dropdown` and `InfoTip` primitives shared across the settings panel: settings fields that
+  use dropdowns now render the custom control, and each setting has an info-icon tooltip explaining
+  the option.
+- `project.githubUrl` and `project.appUrl` fields in the Settings panel (with `InfoTip`
+  explanations) replace the old plain text inputs; both are optional.
+- Doc content area is slightly wider (max `76ch` instead of `72ch`) to give prose more room on
+  large screens.
+- French translations added for the diagram fullscreen-mode buttons ("Plein écran" / "Quitter le
+  plein écran" / "Fermer").
 
 ## v1.0.1 — 2026-06-17
 
