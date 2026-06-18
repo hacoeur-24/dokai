@@ -2,7 +2,7 @@ import { Github, PanelLeftClose, PanelLeftOpen, Search, SquareMousePointer } fro
 import { Command as CommandIcon } from 'lucide-react';
 import { useSettings } from '../state.js';
 import { useT } from '../i18n/index.js';
-import { ProjectLogo } from './Layout.js';
+import { ProjectLogo } from './ProjectLogo.js';
 
 export interface AppHeaderProps {
   projectName: string;
