@@ -1,4 +1,4 @@
-import { copyAgentAssets, patchAgentsMd } from 'dokai-ai';
+import { copyAgentAssets, patchAgentsMd, patchClaudeMd, removeLegacyAssets } from 'dokai-ai';
 import type { RepoShape } from 'dokai-core';
 
 export interface ScaffoldAgentAssetsResult {
@@ -8,11 +8,12 @@ export interface ScaffoldAgentAssetsResult {
 
 /**
  * Scaffold the agent-facing assets into a repo:
- *   - Claude Code (`claude`): `.claude/commands/` + `.claude/skills/dokai/`
- *   - Any other agent (`agents`): `.agents/skills/dokai/` + a managed block in root `AGENTS.md`
+ *   - Claude Code (`claude`): `.claude/agents/`, `.claude/commands/`, `.claude/skills/` + `CLAUDE.md` managed block
+ *   - Any other agent (`agents`): `.agents/skills/` + `AGENTS.md` managed block
  *
- * Slash commands are Claude-specific; every other agent works from the skill and `AGENTS.md`
- * pointer. The `AGENTS.md` path is folded into `written`/`skipped` so it surfaces in summaries.
+ * Always removes legacy `.claude/skills/dokai/` and `.agents/skills/dokai/` directories (the
+ * pre-split single skill) so upgrades are clean. The patched file paths and any removed legacy
+ * paths are folded into `written`/`skipped` so they surface in summaries.
  */
 export async function scaffoldAgentAssets(opts: {
   repoRoot: string;
@@ -26,6 +27,9 @@ export async function scaffoldAgentAssets(opts: {
   const claude = opts.claude ?? true;
   const agents = opts.agents ?? true;
 
+  // Remove legacy single-skill dirs before writing new assets.
+  const legacy = await removeLegacyAssets({ dest: opts.repoRoot });
+
   const result = await copyAgentAssets({
     dest: opts.repoRoot,
     ...(opts.repoShape ? { repoShape: opts.repoShape } : {}),
@@ -34,8 +38,14 @@ export async function scaffoldAgentAssets(opts: {
     agents,
   });
 
-  const written = [...result.written];
+  const written = [...legacy.removed, ...result.written];
   const skipped = [...result.skipped];
+
+  if (claude) {
+    const patched = await patchClaudeMd({ dest: opts.repoRoot });
+    if (patched.action === 'unchanged') skipped.push(patched.path);
+    else written.push(patched.path);
+  }
 
   if (agents) {
     const patched = await patchAgentsMd({ dest: opts.repoRoot });

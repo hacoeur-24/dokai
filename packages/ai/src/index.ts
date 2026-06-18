@@ -1,2 +1,15 @@
-export { copyAgentAssets, patchAgentsMd, templatesRoot, relativeTemplatePath } from './copy.js';
-export type { CopyAgentAssetsOptions, CopyAgentAssetsResult, PatchAgentsMdResult } from './copy.js';
+export {
+  copyAgentAssets,
+  patchAgentsMd,
+  patchClaudeMd,
+  patchManagedDoc,
+  removeLegacyAssets,
+  templatesRoot,
+  relativeTemplatePath,
+} from './copy.js';
+export type {
+  CopyAgentAssetsOptions,
+  CopyAgentAssetsResult,
+  PatchManagedDocResult,
+  RemoveLegacyAssetsResult,
+} from './copy.js';
