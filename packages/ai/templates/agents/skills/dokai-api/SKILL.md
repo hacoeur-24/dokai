@@ -98,4 +98,4 @@ When asked to **update API specs** (a spec already exists):
 Work directly on the `DOKAI/openapi/` YAML files — read routes/handlers, write the spec as plain
 text. You do not need the UI running to do this.
 
-When asked to "set the documentation", do this.
+When asked to "set up the API" or "update the API endpoints" (or to "set the documentation" with API in scope), do this.
