@@ -1,4 +1,27 @@
 import { useState, type ReactNode } from 'react';
+
+const LOGO_SNIPPETS: Record<string, string> = {
+  relativePrefix: './foo',
+  folder: 'DOKAI/',
+  absolutePrefix: '/foo',
+  urlPrefix: 'https://…',
+};
+
+function renderHintWithCode(template: string): ReactNode {
+  return template
+    .split(/(\{relativePrefix\}|\{folder\}|\{absolutePrefix\}|\{urlPrefix\})/g)
+    .map((part, i) => {
+      const m = /^\{(\w+)\}$/.exec(part);
+      const snippet = m ? LOGO_SNIPPETS[m[1] ?? ''] : undefined;
+      return snippet ? (
+        <code key={i} className="font-mono">
+          {snippet}
+        </code>
+      ) : (
+        <span key={i}>{part}</span>
+      );
+    });
+}
 import {
   FolderCog,
   Image as ImageIcon,
@@ -102,13 +125,7 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
         <Field
           icon={<ImageIcon className="h-3.5 w-3.5" />}
           label={t('settings.project.logo', { optional: t('common.optional') })}
-          help={
-            <span>
-              <code className="font-mono">./foo</code> → relative to{' '}
-              <code className="font-mono">DOKAI/</code> · <code className="font-mono">/foo</code> →
-              relative to the repo root · <code className="font-mono">https://…</code> → external URL
-            </span>
-          }
+          help={<span>{renderHintWithCode(t('settings.project.logoHint'))}</span>}
         >
           <input
             type="text"
