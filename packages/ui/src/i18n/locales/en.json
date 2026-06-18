@@ -164,5 +164,11 @@
   "create.placeholder": "Untitled",
   "create.descriptionPlaceholder": "Optional one-line description",
   "create.confirm": "Create",
-  "create.created": "Document created"
+  "create.created": "Document created",
+  "create.kindDocument": "Document",
+  "create.kindFolder": "Folder",
+  "create.location": "Location",
+  "create.locationRoot": "Root",
+  "create.folderName": "Folder name",
+  "create.titleFolder": "Create folder"
 }

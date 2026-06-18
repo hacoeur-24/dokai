@@ -1,9 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { createDoc } from '../lib/api.js';
-import { useRefresh } from '../state.js';
+import { createDoc, createFolder } from '../lib/api.js';
+import { useManifest, useRefresh } from '../state.js';
 import { useT } from '../i18n/index.js';
+import { Dropdown } from './Dropdown.js';
+import { flattenFolders } from '../lib/tree.js';
 
 export function CreateDocDialog({
   open,
@@ -12,21 +14,24 @@ export function CreateDocDialog({
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  /** Pre-fill the folder field. Used when the user clicks `+` next to a sidebar section. */
+  /** Pre-fill the folder location. Used when the user clicks `+` next to a sidebar section. */
   initialFolder?: string;
 }) {
   const navigate = useNavigate();
   const refresh = useRefresh();
+  const manifest = useManifest();
   const t = useT();
 
+  const [kind, setKind] = useState<'document' | 'folder'>('document');
   const [title, setTitle] = useState('');
-  const [folder, setFolder] = useState(initialFolder ?? '');
+  const [location, setLocation] = useState<string>(initialFolder ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setFolder(initialFolder ?? '');
+      setKind('document');
+      setLocation(initialFolder ?? '');
       setTitle('');
       setError(null);
       setBusy(false);
@@ -35,23 +40,46 @@ export function CreateDocDialog({
 
   if (!open) return null;
 
+  // Build location options: Root + every folder in the tree
+  const folders = manifest.data?.tree ? flattenFolders(manifest.data.tree) : [];
+  const locationOptions = [
+    { label: t('create.locationRoot'), value: '' },
+    ...folders.map((f) => ({
+      label: '  '.repeat(f.depth) + (f.path.split('/').pop() ?? f.path),
+      value: f.path,
+    })),
+  ];
+
   const handleCreate = async (): Promise<void> => {
     if (!title.trim()) return;
     setBusy(true);
     setError(null);
     try {
       const slug = slugify(title);
-      const folderPart = folder.trim().replace(/^\/+|\/+$/g, '');
-      const route = folderPart ? `/dokai/${folderPart}/${slug}` : `/dokai/${slug}`;
-      const result = await createDoc(route, { title });
-      refresh();
-      onOpenChange(false);
-      navigate(`${result.route}?edit=1`);
+      if (kind === 'document') {
+        const folderPart = location.trim().replace(/^\/+|\/+$/g, '');
+        const route = folderPart ? `/dokai/${folderPart}/${slug}` : `/dokai/${slug}`;
+        const result = await createDoc(route, { title });
+        refresh();
+        onOpenChange(false);
+        navigate(`${result.route}?edit=1`);
+      } else {
+        // folder branch: build relative path from location + slug, then create
+        const folderPart = location.trim().replace(/^\/+|\/+$/g, '');
+        const relativePath = folderPart ? `${folderPart}/${slug}` : slug;
+        await createFolder(relativePath, { title });
+        refresh();
+        onOpenChange(false);
+        // intentionally no navigate() — folders have no editor route
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setBusy(false);
     }
   };
+
+  const titleLabel = kind === 'folder' ? t('create.folderName') : t('frontmatter.title');
+  const dialogTitle = kind === 'folder' ? t('create.titleFolder') : t('create.title');
 
   return (
     <div
@@ -64,7 +92,7 @@ export function CreateDocDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-sm font-semibold">{t('layout.newDoc')}</h2>
+          <h2 className="text-sm font-semibold">{dialogTitle}</h2>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
@@ -75,25 +103,52 @@ export function CreateDocDialog({
         </header>
 
         <div className="space-y-3 px-4 py-4">
-          <Field label={`Folder (${t('common.optional')})`}>
-            <input
-              type="text"
-              value={folder}
-              onChange={(e) => setFolder(e.target.value)}
-              placeholder="backend"
-              className={inputCls}
+          {/* Kind switcher: Document | Folder */}
+          <div className="flex rounded-[var(--radius-control)] border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setKind('document')}
+              className={[
+                'flex-1 px-3 py-1.5 text-sm font-medium transition',
+                kind === 'document'
+                  ? 'bg-[var(--color-accent)] text-[var(--color-accent-fg)]'
+                  : 'bg-[var(--color-bg)] hover:bg-[var(--color-bg-muted)]',
+              ].join(' ')}
+            >
+              {t('create.kindDocument')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setKind('folder')}
+              className={[
+                'flex-1 px-3 py-1.5 text-sm font-medium transition border-l',
+                kind === 'folder'
+                  ? 'bg-[var(--color-accent)] text-[var(--color-accent-fg)]'
+                  : 'bg-[var(--color-bg)] hover:bg-[var(--color-bg-muted)]',
+              ].join(' ')}
+            >
+              {t('create.kindFolder')}
+            </button>
+          </div>
+
+          {/* Location dropdown */}
+          <Field label={t('create.location')}>
+            <Dropdown
+              value={location}
+              options={locationOptions}
+              onChange={(v) => setLocation(v)}
+              fullWidth
             />
-            <p className="mt-1 text-[0.7rem]" style={{ color: 'var(--color-fg-subtle)' }}>
-              Path under DOKAI/. Leave blank for top level.
-            </p>
           </Field>
-          <Field label={t('frontmatter.title')}>
+
+          {/* Name / Title input */}
+          <Field label={titleLabel}>
             <input
               type="text"
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="API endpoints"
+              placeholder={kind === 'folder' ? 'my-folder' : 'API endpoints'}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -103,15 +158,26 @@ export function CreateDocDialog({
               className={inputCls}
             />
           </Field>
-          {title.trim() && (
+
+          {title.trim() && kind === 'document' && (
             <p className="text-[0.72rem]" style={{ color: 'var(--color-fg-subtle)' }}>
               Will create{' '}
               <span className="font-mono">
-                DOKAI/{folder ? `${folder}/` : ''}
+                DOKAI/{location ? `${location}/` : ''}
                 {slugify(title)}.md
               </span>
             </p>
           )}
+          {title.trim() && kind === 'folder' && (
+            <p className="text-[0.72rem]" style={{ color: 'var(--color-fg-subtle)' }}>
+              Will create{' '}
+              <span className="font-mono">
+                DOKAI/{location ? `${location}/` : ''}
+                {slugify(title)}/
+              </span>
+            </p>
+          )}
+
           {error && (
             <p className="text-xs" style={{ color: 'var(--color-danger)' }}>
               {error}
