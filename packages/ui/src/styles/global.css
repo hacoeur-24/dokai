@@ -1005,10 +1005,22 @@ milkdown-block-handle {
   }
 }
 
-/* Scalar's "Test Request" / API-client panel is a position:fixed overlay teleported to <body>
- * (left:0; width:100%) with no z-index of its own, so it renders behind DOKAI's chrome. Lift the
- * open panel above everything (DOKAI's highest z-index is 1000) so it's a clean full-screen overlay
- * while open; it disappears on close and the sidebar/content return automatically. */
+/* Scalar's "Test Request" / API-client panel is a position:fixed overlay mounted IN-PLACE inside
+ * our container (not teleported to <body>), and `.scalar-container` carries `will-change: opacity`
+ * — which creates a stacking context that traps the fixed overlay, so a z-index on it cannot lift
+ * it above DOKAI's sidebar/header. Two-part hard fix:
+ * 1) Neutralize the will-change trap + give the open panel a max z-index (best-effort: lets the
+ *    overlay itself sit on top where stacking permits).
+ * 2) Guaranteed backstop: while the panel is open, hide DOKAI's own chrome (sidebar + header,
+ *    marked `data-dokai-chrome`) so nothing of ours can paint over the full-screen panel. The
+ *    panel covers their space anyway; they return the moment it closes. Pure CSS via :has() — no
+ *    JS/observer/timing. */
+.scalar-container {
+  will-change: auto !important;
+}
 .scalar-container.scalar-client--open {
-  z-index: 10000;
+  z-index: 2147483000;
+}
+body:has(.scalar-container.scalar-client--open) [data-dokai-chrome] {
+  visibility: hidden;
 }

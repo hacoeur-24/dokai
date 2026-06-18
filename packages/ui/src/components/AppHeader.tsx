@@ -27,6 +27,7 @@ export function AppHeader({
 
   return (
     <header
+      data-dokai-chrome
       className="flex shrink-0 items-center gap-2 px-3 border-b"
       style={{
         height: '52px',
