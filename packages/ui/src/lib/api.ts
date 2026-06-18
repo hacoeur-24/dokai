@@ -4,11 +4,13 @@
  * - Write endpoints work only in dev mode and throw on the static build.
  */
 
-import type { DocNode, Frontmatter, ProjectSettings, SectionNode, UserSettings } from 'dokai-core';
+import type { DocNode, Frontmatter, OpenApiSpecMeta, ProjectSettings, SectionNode, UserSettings } from 'dokai-core';
 
 export interface Manifest {
   tree: SectionNode;
   docs: Array<Pick<DocNode, 'route' | 'frontmatter' | 'workspace' | 'relativePath'>>;
+  specs: OpenApiSpecMeta[];
+  capabilities: { tryItOut: boolean };
 }
 
 export interface SettingsBundle {
