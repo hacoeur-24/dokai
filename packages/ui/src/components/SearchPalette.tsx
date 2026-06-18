@@ -193,6 +193,13 @@ export function SearchPalette({
                 onChange={setActiveVersion}
               />
             )}
+            {allTags.length > 0 && (allStatuses.length > 0 || allVersions.length > 1) && (
+              <span
+                aria-hidden="true"
+                className="mx-1 h-4 w-px self-center"
+                style={{ background: 'var(--color-border)' }}
+              />
+            )}
             {allTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1">
                 {allTags.slice(0, 12).map((t) => {
