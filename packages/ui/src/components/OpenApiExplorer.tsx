@@ -4,6 +4,7 @@ import { createApiReference } from '@scalar/api-reference';
 import '@scalar/api-reference/style.css';
 import { useManifest, useSettings } from '../state.js';
 import { buildScalarConfig, findSpecByRoute, rawSpecUrl } from '../lib/openapi.js';
+import { useT } from '../i18n/index.js';
 
 export function OpenApiExplorer() {
   const params = useParams<{ '*': string }>();
@@ -12,6 +13,7 @@ export function OpenApiExplorer() {
 
   const manifest = useManifest();
   const settings = useSettings();
+  const t = useT();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const spec = useMemo(
@@ -35,7 +37,7 @@ export function OpenApiExplorer() {
 
   if (!manifest.data) return null;
   if (manifest.data && !spec) {
-    return <p style={{ color: 'var(--color-fg-subtle)' }}>No API spec found for {route}.</p>;
+    return <p style={{ color: 'var(--color-fg-subtle)' }}>{t('openapi.specNotFound', { route })}</p>;
   }
   return <div ref={containerRef} className="dokai-openapi-explorer" />;
 }

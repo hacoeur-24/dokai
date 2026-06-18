@@ -1,5 +1,6 @@
 {
   "common.save": "Save",
+  "common.moreInfo": "More information",
   "common.saving": "Saving…",
   "common.saved": "Saved",
   "common.cancel": "Cancel",
@@ -35,6 +36,7 @@
   "sidebar.collapseShortcut": "Collapse sidebar (⌘B)",
   "sidebar.collapseAll": "Collapse all",
   "sidebar.expandAll": "Expand all",
+  "sidebar.apis": "APIs",
 
   "header.github": "GitHub",
   "header.application": "Application",
@@ -189,5 +191,7 @@
   "create.titleFolder": "Create folder",
   "create.docNamePlaceholder": "API endpoints",
   "create.folderPlaceholder": "my-folder",
-  "create.pathPreview": "Will create"
+  "create.pathPreview": "Will create",
+
+  "openapi.specNotFound": "No API spec found for {route}."
 }

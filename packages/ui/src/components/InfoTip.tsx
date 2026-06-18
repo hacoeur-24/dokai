@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react';
 import { type ReactNode } from 'react';
+import { useT } from '../i18n/index.js';
 
 export interface InfoTipProps {
   /** The tooltip content displayed on hover and focus. */
@@ -13,13 +14,15 @@ export interface InfoTipProps {
  * Implemented as CSS-only (no Radix portal) so it sits inline beside a label without
  * shifting layout. The bubble uses `.dokai-tooltip` which applies inverted tokens.
  */
-export function InfoTip({ content, label = 'More information' }: InfoTipProps) {
+export function InfoTip({ content, label }: InfoTipProps) {
+  const t = useT();
+  const ariaLabel = label ?? t('common.moreInfo');
   return (
     <span className="dokai-infotip">
       <button
         type="button"
         className="dokai-infotip__trigger"
-        aria-label={label}
+        aria-label={ariaLabel}
       >
         <Info className="h-3.5 w-3.5" aria-hidden="true" />
       </button>

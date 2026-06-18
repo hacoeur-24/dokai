@@ -1,5 +1,6 @@
 {
   "common.save": "Enregistrer",
+  "common.moreInfo": "Plus d'informations",
   "common.saving": "Enregistrement…",
   "common.saved": "Enregistré",
   "common.cancel": "Annuler",
@@ -35,6 +36,7 @@
   "sidebar.collapseShortcut": "Réduire la barre latérale (⌘B)",
   "sidebar.collapseAll": "Tout réduire",
   "sidebar.expandAll": "Tout développer",
+  "sidebar.apis": "API",
 
   "header.github": "GitHub",
   "header.application": "Application",
@@ -189,5 +191,7 @@
   "create.titleFolder": "Créer un dossier",
   "create.docNamePlaceholder": "Points de terminaison API",
   "create.folderPlaceholder": "mon-dossier",
-  "create.pathPreview": "Créera"
+  "create.pathPreview": "Créera",
+
+  "openapi.specNotFound": "Aucune spécification d'API trouvée pour {route}."
 }

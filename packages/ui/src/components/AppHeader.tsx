@@ -89,6 +89,7 @@ export function AppHeader({
           type="button"
           onClick={onOpenSearch}
           title={t('layout.searchShortcut')}
+          aria-label={t('layout.search')}
           className="flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm shadow-sm transition hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
           style={{
             background: 'var(--color-surface)',

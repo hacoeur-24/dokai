@@ -151,6 +151,7 @@ export const Sidebar = forwardRef<SidebarHandle, SidebarProps>(function Sidebar(
 
 function ApiNavGroup() {
   const manifest = useManifest();
+  const t = useT();
   const specs = manifest.data?.specs ?? [];
   if (specs.length === 0) return null;
 
@@ -158,7 +159,7 @@ function ApiNavGroup() {
     <div className="mt-3">
       <div className="dokai-sidebar-folder mt-3 mb-1 flex items-center gap-1.5 pr-1">
         <Webhook className="dokai-sidebar-folder-icon" />
-        <span className="min-w-0 flex-1 truncate text-left">APIs</span>
+        <span className="min-w-0 flex-1 truncate text-left">{t('sidebar.apis')}</span>
       </div>
       <div className="ml-2.75 border-l pl-2" style={{ borderColor: 'var(--color-border)' }}>
         <ul className="flex flex-col gap-px">
