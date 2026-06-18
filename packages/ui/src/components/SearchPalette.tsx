@@ -129,6 +129,8 @@ export function SearchPalette({
   const t = useT();
   if (!open) return null;
 
+  const hasFilters = allTags.length > 0 || allStatuses.length > 0 || allVersions.length > 1;
+
   const toggleTag = (tag: string): void =>
     setActiveTags((cur) => (cur.includes(tag) ? cur.filter((t) => t !== tag) : [...cur, tag]));
 
@@ -151,7 +153,7 @@ export function SearchPalette({
             placeholder={t('search.placeholder')}
             className="min-w-0 flex-1 bg-transparent px-5 py-4 text-[0.95rem] outline-none placeholder:text-fg-subtle"
           />
-          {(allTags.length > 0 || allStatuses.length > 0 || allVersions.length > 1) && (
+          {hasFilters && (
             <button
               type="button"
               title={t('search.filters')}
@@ -171,10 +173,11 @@ export function SearchPalette({
           )}
         </div>
 
-        {filtersOpen && (allTags.length > 0 || allStatuses.length > 0 || allVersions.length > 1) && (
+        {filtersOpen && hasFilters && (
           <div className="flex flex-wrap items-center gap-1.5 border-b px-3 py-2 text-xs">
             {allStatuses.length > 0 && (
               <StatusFilter
+                label={t('search.statusLabel')}
                 allLabel={t('search.allOption')}
                 options={allStatuses}
                 value={activeStatus}
@@ -283,11 +286,13 @@ export function SearchPalette({
 }
 
 function StatusFilter({
+  label,
   allLabel,
   options,
   value,
   onChange,
 }: {
+  label: string;
   allLabel: string;
   options: string[];
   value: string | null;
@@ -298,11 +303,14 @@ function StatusFilter({
     ...options.map((o) => ({ value: o, label: o })),
   ];
   return (
-    <Dropdown
-      value={value ?? ''}
-      options={dropdownOptions}
-      onChange={(v) => onChange(v || null)}
-    />
+    <label className="flex items-center gap-1.5">
+      <span className="dokai-eyebrow text-[0.65rem]">{label}</span>
+      <Dropdown
+        value={value ?? ''}
+        options={dropdownOptions}
+        onChange={(v) => onChange(v || null)}
+      />
+    </label>
   );
 }
 
