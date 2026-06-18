@@ -44,3 +44,13 @@ function stripIndex(path: string): string {
 function stripLeading(path: string, prefix: string): string {
   return path.startsWith(prefix) ? path.slice(prefix.length) : path;
 }
+
+/** Route namespace for the OpenAPI explorer. Underscore-prefixed so it can never collide with a
+ *  markdown doc route (mirrors how `/dokai/_settings` is reserved). */
+export const API_ROUTE_PREFIX = '/dokai/_api';
+
+/** Build the in-app route for a spec given its path relative to the configured openapi dir,
+ *  with the extension stripped. e.g. "billing/payments" -> "/dokai/_api/billing/payments". */
+export function openapiRouteForRelpath(relpathUnderDir: string): string {
+  return relpathUnderDir ? `${API_ROUTE_PREFIX}/${relpathUnderDir}` : API_ROUTE_PREFIX;
+}

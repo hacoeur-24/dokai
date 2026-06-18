@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { openapiSettingsSchema } from './openapi.js';
 
 const themeSchema = z
   .object({
@@ -35,6 +36,7 @@ export const projectSettingsSchema = z
     theme: themeSchema,
     downloads: downloadsSchema,
     repository: repositorySchema,
+    openapi: openapiSettingsSchema,
   })
   .default({});
 
