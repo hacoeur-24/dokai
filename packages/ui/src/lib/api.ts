@@ -85,6 +85,12 @@ export const createDoc = (
 ): Promise<{ ok: true; route: string }> =>
   sendJson('POST', `/api/doc?route=${encodeURIComponent(route)}`, body);
 
+export const createFolder = (
+  relativePath: string,
+  metadata: { title: string; description?: string },
+): Promise<{ ok: true }> =>
+  sendJson('POST', `/api/folder?path=${encodeURIComponent(relativePath)}`, metadata);
+
 export const renameDoc = (
   route: string,
   newRelativePath: string,

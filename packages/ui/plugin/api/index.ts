@@ -22,6 +22,8 @@ import {
   type DocNode,
   type SectionNode,
 } from 'dokai-core/node';
+import { sectionMetadataSchema } from 'dokai-core';
+import { sectionJsonPath } from './folder.js';
 import { resolveSpecContentType } from './openapi-raw.js';
 import {
   buildAllowedHosts,
@@ -205,6 +207,33 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
       }
 
       return sendError(res, 405, `Method ${method} not allowed`);
+    }),
+  );
+
+  server.middlewares.use(
+    '/api/folder',
+    wrap(async (req, res) => {
+      if (!writesEnabled) return sendError(res, 405, 'Writes disabled in static build');
+      const method = (req.method ?? 'POST').toUpperCase();
+      if (method !== 'POST') return sendError(res, 405, `Method ${method} not allowed`);
+      const url = new URL(req.url ?? '/', 'http://x');
+      const folderPath = url.searchParams.get('path');
+      if (!folderPath) return sendError(res, 400, 'Missing ?path=');
+      const body = await readJsonBody(req);
+      const parsed = sectionMetadataSchema.safeParse(body);
+      if (!parsed.success) {
+        return sendError(
+          res,
+          400,
+          parsed.error.issues.map((issue: { message: string }) => issue.message).join('; '),
+        );
+      }
+      const target = resolveSafePath(dokaiRoot, sectionJsonPath(folderPath));
+      if (!target) return sendError(res, 400, 'path resolves outside DOKAI/');
+      if (existsSync(target)) return sendError(res, 409, `Folder already exists: ${folderPath}`);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, JSON.stringify(parsed.data, null, 2) + '\n', 'utf8');
+      return sendJson(res, { ok: true });
     }),
   );
 
