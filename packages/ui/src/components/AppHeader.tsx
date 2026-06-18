@@ -90,7 +90,7 @@ export function AppHeader({
           onClick={onOpenSearch}
           title={t('layout.searchShortcut')}
           aria-label={t('layout.search')}
-          className="flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm shadow-sm transition hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
+          className="ml-2 flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm shadow-sm transition hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)] sm:min-w-[200px]"
           style={{
             background: 'var(--color-surface)',
             color: 'var(--color-fg-subtle)',
@@ -98,7 +98,7 @@ export function AppHeader({
           }}
         >
           <Search className="h-4 w-4 shrink-0" />
-          <span className="hidden sm:inline">{t('layout.search')}</span>
+          <span className="hidden flex-1 text-left sm:block">{t('layout.search')}</span>
           <kbd
             className="flex shrink-0 items-center gap-0.5 rounded-md border bg-[var(--color-bg-subtle)] px-1.5 py-0.5 text-[0.7rem]"
             style={{ borderColor: 'var(--color-border)' }}
