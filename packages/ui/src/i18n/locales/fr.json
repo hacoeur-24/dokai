@@ -68,6 +68,7 @@
   "diagram.downloadSvg": "SVG",
   "diagram.downloadPng": "PNG",
   "diagram.close": "Fermer",
+  "diagram.closeEsc": "Fermer (Échap)",
   "diagram.zoomIn": "Zoom avant",
   "diagram.zoomOut": "Zoom arrière",
   "diagram.fit": "Ajuster",

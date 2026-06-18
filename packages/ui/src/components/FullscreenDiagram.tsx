@@ -194,7 +194,7 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             type="button"
             onClick={onClose}
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm hover:bg-[var(--color-bg-muted)]"
-            title={t('diagram.close')}
+            title={t('diagram.closeEsc')}
           >
             <X className="h-3.5 w-3.5" />
             {t('diagram.close')}
