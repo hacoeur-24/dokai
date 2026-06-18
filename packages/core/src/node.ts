@@ -29,6 +29,8 @@ export type {
 } from './types.js';
 
 export { pathToRoute, routeToPath, anchorRoute } from './route.js';
+export { scanOpenApiSpecs } from './openapi/scan.js';
+export type { ScanOpenApiOptions, OpenApiScanResult } from './openapi/scan.js';
 export { headingSlug, createSlugger } from './slug.js';
 export { defaultFrontmatter, frontmatterSchema } from './schemas/frontmatter.js';
 export { defaultProjectSettings, projectSettingsSchema } from './schemas/project-settings.js';
