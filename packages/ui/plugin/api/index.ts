@@ -27,6 +27,7 @@ import { sectionJsonPath } from './folder.js';
 import { resolveSpecContentType } from './openapi-raw.js';
 import {
   buildAllowedHosts,
+  describeUpstreamError,
   filterForwardHeaders,
   isHostAllowed,
   parseTargetUrl,
@@ -347,12 +348,19 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
         if (hop === MAX_REDIRECTS) {
           return sendError(res, 502, 'Too many redirects');
         }
-        const response = await fetch(currentUrl, {
-          method: currentMethod,
-          headers: forwardedHeaders,
-          body: currentBody,
-          redirect: 'manual',
-        });
+        let response: Response;
+        try {
+          response = await fetch(currentUrl, {
+            method: currentMethod,
+            headers: forwardedHeaders,
+            body: currentBody,
+            redirect: 'manual',
+          });
+        } catch (err) {
+          // The upstream API server is unreachable (down, wrong host, refused, DNS, timeout).
+          // Return a clear 502 the UI can show instead of leaking an opaque "fetch failed" stack.
+          return sendError(res, 502, describeUpstreamError(new URL(currentUrl), err));
+        }
         const status = response.status;
         if (status >= 300 && status < 400) {
           const location = response.headers.get('location');

@@ -90,6 +90,23 @@ export function filterForwardHeaders(headers: IncomingHttpHeaders): Record<strin
   return out;
 }
 
+/** Build a clear, actionable message when the upstream API server can't be reached. The native
+ *  fetch throws an opaque `TypeError: fetch failed` on connection errors; the useful detail
+ *  (ECONNREFUSED, ENOTFOUND, ETIMEDOUT, …) lives on `err.cause.code`. */
+export function describeUpstreamError(target: URL, err: unknown): string {
+  let code: string | undefined;
+  if (err instanceof Error && err.cause && typeof err.cause === 'object') {
+    const c = err.cause as { code?: unknown };
+    if (typeof c.code === 'string') code = c.code;
+  }
+  const codePart = code ? ` (${code})` : '';
+  return (
+    `Could not reach the API server at ${target.origin}${codePart}. ` +
+    `Make sure the server is running and reachable from this machine, and that the spec's ` +
+    `"servers" URL is correct.`
+  );
+}
+
 /** Read a request body into a Buffer, throwing if it exceeds maxBytes. */
 export async function readRawBody(req: AsyncIterable<Buffer>, maxBytes: number): Promise<Buffer> {
   const chunks: Buffer[] = [];

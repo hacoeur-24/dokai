@@ -43,6 +43,18 @@ node ../../packages/cli/dist/index.js init --yes
 node ../../packages/cli/dist/index.js dev --port 8128
 ```
 
+To exercise the OpenAPI "Test Request" try-it-out against a live server, run the bundled mock API
+(`examples/project/scripts/mock-api.mjs`) in a second terminal — it serves the petstore spec on the
+`http://localhost:3000` the spec points at (`GET /pets` public, `POST /pets` needs a Bearer token):
+
+```bash
+pnpm --filter example-project mock      # mock petstore API on :3000
+pnpm --filter example-project dokai     # docs UI on :8128, then open /dokai/_api/petstore
+```
+
+Without it, try-it-out returns a clear 502 ("Could not reach the API server…") rather than a raw
+`fetch failed` — the dev-only proxy (`/api/openapi/proxy`) catches upstream connection errors.
+
 ## Architecture
 
 Four packages, all published **unscoped to the public npm registry** (`dokai-kit` — the CLI, bin `dokai` — plus `dokai-core`, `dokai-ui`, `dokai-ai`). The unscoped name `dokai` is blocked by npm's similarity filter, so the CLI package is `dokai-kit` while its command stays `dokai`. Turborepo orchestrates the build graph; pnpm workspace links them.

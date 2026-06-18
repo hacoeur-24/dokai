@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildAllowedHosts,
+  describeUpstreamError,
   filterForwardHeaders,
   isBlockedHost,
   isHostAllowed,
@@ -8,6 +9,24 @@ import {
   readRawBody,
   resolveRedirectTarget,
 } from './openapi-proxy.js';
+
+describe('describeUpstreamError', () => {
+  it('names the target origin and surfaces the cause code (e.g. ECONNREFUSED)', () => {
+    const err = Object.assign(new TypeError('fetch failed'), {
+      cause: Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:3000'), { code: 'ECONNREFUSED' }),
+    });
+    const msg = describeUpstreamError(new URL('http://localhost:3000/pets'), err);
+    expect(msg).toContain('http://localhost:3000');
+    expect(msg).toContain('ECONNREFUSED');
+    expect(msg).toMatch(/servers/);
+  });
+
+  it('omits the code when the error carries no cause code', () => {
+    const msg = describeUpstreamError(new URL('https://api.example.com/v1/users'), new Error('boom'));
+    expect(msg).toContain('https://api.example.com');
+    expect(msg).not.toContain('(');
+  });
+});
 
 describe('isBlockedHost', () => {
   it('blocks the classic metadata IP 169.254.169.254', () => {
