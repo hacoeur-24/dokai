@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Settings as SettingsIcon,
   Plus,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { Sidebar } from './Sidebar.js';
+import type { SidebarHandle } from './Sidebar.js';
 import { SearchPalette } from './SearchPalette.js';
 import { CreateDocDialog } from './CreateDocDialog.js';
 import { AppHeader } from './AppHeader.js';
@@ -35,6 +38,9 @@ export function Layout() {
     setCreateInitialFolder(undefined);
     setCreateOpen(true);
   };
+
+  const sidebarRef = useRef<SidebarHandle>(null);
+  const [allCollapsed, setAllCollapsed] = useState(false);
 
   // Local sidebar collapsed state, seeded from user-settings and persisted on toggle so the
   // preference survives reloads. Local-first: we update the UI immediately, then write.
@@ -116,16 +122,36 @@ export function Layout() {
               <button
                 type="button"
                 onClick={openCreate}
-                title={t('layout.newDoc')}
-                aria-label={t('layout.newDoc')}
-                className="rounded-[var(--radius-control)] border bg-[var(--color-surface)] p-2 text-sm shadow-sm transition hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+                title={t('layout.createNew')}
+                aria-label={t('layout.createNew')}
+                className="flex flex-1 items-center gap-1.5 rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-3 py-1.5 text-sm shadow-sm transition hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+                style={{ color: 'var(--color-fg-muted)' }}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5 shrink-0" />
+                <span>{t('layout.createNew')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !allCollapsed;
+                  setAllCollapsed(next);
+                  sidebarRef.current?.collapseAll(next);
+                }}
+                title={allCollapsed ? t('sidebar.expandAll') : t('sidebar.collapseAll')}
+                aria-label={allCollapsed ? t('sidebar.expandAll') : t('sidebar.collapseAll')}
+                className="dokai-icon-button shrink-0"
+              >
+                {allCollapsed ? (
+                  <ChevronsUpDown className="h-4 w-4" />
+                ) : (
+                  <ChevronsDownUp className="h-4 w-4" />
+                )}
               </button>
             </div>
 
             <div ref={sidebarScrollRef} className="dokai-scroll-auto min-h-0 flex-1 overflow-y-auto">
               <Sidebar
+                ref={sidebarRef}
                 tree={manifest.data?.tree ?? null}
                 loading={manifest.isLoading}
                 onAddInFolder={openCreateInFolder}

@@ -33,11 +33,14 @@
   "sidebar.collapse": "Collapse sidebar",
   "sidebar.expandShortcut": "Expand sidebar (⌘B)",
   "sidebar.collapseShortcut": "Collapse sidebar (⌘B)",
+  "sidebar.collapseAll": "Collapse all",
+  "sidebar.expandAll": "Expand all",
 
   "header.github": "GitHub",
   "header.application": "Application",
 
   "layout.newDoc": "New document",
+  "layout.createNew": "Create new",
   "layout.search": "Search…",
   "layout.searchShortcut": "Search (⌘K)",
   "layout.settings": "Settings",
