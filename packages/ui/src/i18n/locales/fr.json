@@ -121,6 +121,10 @@
   "settings.project.downloads": "Téléchargements",
   "settings.project.defaultFormat": "Format par défaut",
   "settings.project.defaultFormatHint": "Utilisé par l'action Télécharger du clic droit et comme option mise en évidence dans le menu Télécharger du document.",
+  "settings.project.githubUrl": "URL GitHub",
+  "settings.project.githubUrlHint": "Lien affiché dans l'en-tête. URL complète de votre dépôt.",
+  "settings.project.appUrl": "URL de l'application",
+  "settings.project.appUrlHint": "Lien affiché dans l'en-tête. URL complète de votre application.",
   "settings.project.saved": "Paramètres du projet enregistrés",
   "settings.project.saveFailed": "Impossible d'enregistrer les paramètres du projet : {error}",
 

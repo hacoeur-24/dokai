@@ -121,6 +121,10 @@
   "settings.project.downloads": "Downloads",
   "settings.project.defaultFormat": "Default format",
   "settings.project.defaultFormatHint": "Used by the right-click Download action and as the highlighted option in the in-doc download dropdown.",
+  "settings.project.githubUrl": "GitHub URL",
+  "settings.project.githubUrlHint": "Link shown in the header. Full URL to your repository.",
+  "settings.project.appUrl": "Application URL",
+  "settings.project.appUrlHint": "Link shown in the header. Full URL to your application.",
   "settings.project.saved": "Project settings saved",
   "settings.project.saveFailed": "Couldn't save project settings: {error}",
 
