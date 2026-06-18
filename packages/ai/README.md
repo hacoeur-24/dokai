@@ -6,10 +6,11 @@ This is an internal package consumed by the [`dokai-kit`](https://www.npmjs.com/
 
 It bundles the agent-facing templates and the helpers the CLI uses to scaffold them during `dokai init`:
 
-- `copyAgentAssets` — copies the Claude Code slash commands (`/set-documentation`, `/update-documentation`) into `.claude/commands/`, and the single agent-agnostic `dokai` skill into both `.claude/skills/dokai/` and `.agents/skills/dokai/`.
-- `patchAgentsMd` — idempotently maintains a managed `dokai` block in the repo root `AGENTS.md`, the file Codex/Cursor/Gemini-style agents read, pointing them at the skill.
+- `copyAgentAssets` — installs the Claude Code assets into `.claude/` (the `/set-documentation` and `/update-documentation` slash commands → `.claude/commands/`, the `dokai` sub-agent → `.claude/agents/`, and the focused `dokai-docs` + `dokai-api` skills → `.claude/skills/`), plus the agent-agnostic `dokai-docs` + `dokai-api` skills → `.agents/skills/`.
+- `patchClaudeMd` / `patchAgentsMd` — idempotently maintain a managed `dokai` block in `CLAUDE.md` (Claude-optimized) and the repo root `AGENTS.md` (read by Codex/Cursor/Gemini-style agents), each pointing the agent at its skills/commands.
+- `removeLegacyAssets` — on upgrade, removes the pre-split single `dokai` skill (`.claude/skills/dokai/`, `.agents/skills/dokai/`).
 
-Slash commands are Claude-specific; every other agent works from the skill and the `AGENTS.md` pointer.
+Slash commands and the sub-agent are Claude-specific; every other agent works from the `.agents/` skills (which carry the set/update workflow) and the `AGENTS.md` pointer. The skills are split so each stays focused: `dokai-docs` for the `DOKAI/` markdown tree, `dokai-api` for the OpenAPI specs under `DOKAI/openapi/`.
 
 ## License
 

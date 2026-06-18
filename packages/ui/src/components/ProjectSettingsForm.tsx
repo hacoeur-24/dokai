@@ -1,4 +1,25 @@
 import { useState, type ReactNode } from 'react';
+import {
+  FolderCog,
+  Image as ImageIcon,
+  Palette,
+  Tag as TagIcon,
+  Check,
+  AlertCircle,
+  SunMoon,
+  Droplet,
+  Square,
+  Download,
+  FileType2,
+  Link,
+} from 'lucide-react';
+import type { ProjectSettings } from 'dokai-core';
+import { saveProjectSettings } from '../lib/api.js';
+import { useRefresh } from '../state.js';
+import { useToast } from './Toast.js';
+import { useT } from '../i18n/index.js';
+import { Dropdown } from './Dropdown.js';
+import { InfoTip } from './InfoTip.js';
 
 const LOGO_SNIPPETS: Record<string, string> = {
   relativePrefix: './foo',
@@ -22,27 +43,6 @@ function renderHintWithCode(template: string): ReactNode {
       );
     });
 }
-import {
-  FolderCog,
-  Image as ImageIcon,
-  Palette,
-  Tag as TagIcon,
-  Check,
-  AlertCircle,
-  SunMoon,
-  Droplet,
-  Square,
-  Download,
-  FileType2,
-  Link,
-} from 'lucide-react';
-import type { ProjectSettings } from 'dokai-core';
-import { saveProjectSettings } from '../lib/api.js';
-import { useRefresh } from '../state.js';
-import { useToast } from './Toast.js';
-import { useT } from '../i18n/index.js';
-import { Dropdown } from './Dropdown.js';
-import { InfoTip } from './InfoTip.js';
 
 export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
   const refresh = useRefresh();
