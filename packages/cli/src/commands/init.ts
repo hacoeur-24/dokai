@@ -8,6 +8,7 @@ import { scaffoldSettings } from '../scaffold/settings.js';
 import { patchGitignore } from '../scaffold/gitignore.js';
 import { patchPackageJsonScripts } from '../scaffold/package-json.js';
 import { scaffoldAgentAssets } from '../scaffold/agents.js';
+import { scaffoldOpenApiArea } from '../scaffold/openapi-area.js';
 import { log } from '../lib/log.js';
 
 export interface InitOptions {
@@ -81,6 +82,10 @@ export async function runInit(options: InitOptions = {}): Promise<InitSummary> {
   });
   filesWritten.push(...folder.written);
   filesSkipped.push(...folder.skipped);
+
+  const openapi = await scaffoldOpenApiArea({ dokaiRoot });
+  filesWritten.push(...openapi.written);
+  filesSkipped.push(...openapi.skipped);
 
   const settings = await scaffoldSettings({
     dokaiRoot,
