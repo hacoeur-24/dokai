@@ -112,6 +112,11 @@ Use when `DOKAI/` already has substantive content.
 One massive doc; mirroring code folders 1:1; stale `updatedAt`; missing `description`; diagrams as
 images; mixing the two settings files; rewriting everything on a routine update.
 
+## OpenAPI
+
+Author specs under `DOKAI/openapi/` as OpenAPI 3.x YAML or JSON. Security (the lock icon and the
+Authorize flow) is derived from the spec's `securitySchemes`/`security`. Requests run in `pnpm dokai`.
+
 ---
 
 In **Claude Code**, the `/set-documentation` and `/update-documentation` slash commands run

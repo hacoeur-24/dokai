@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { copyAgentAssets, patchAgentsMd } from './copy.js';
+import { copyAgentAssets, patchAgentsMd, templatesRoot } from './copy.js';
 
 describe('copyAgentAssets', () => {
   it('copies commands to .claude and the dokai skill to both .claude and .agents', async () => {
@@ -48,6 +48,13 @@ describe('copyAgentAssets', () => {
     const third = await copyAgentAssets({ dest, overwrite: true });
     expect(third.written).toContain(skillPath);
     expect((await readFile(skillPath, 'utf8')).startsWith('---\nname: dokai')).toBe(true);
+  });
+});
+
+describe('templates', () => {
+  it('documents the OpenAPI convention in the AGENTS template', async () => {
+    const body = await readFile(join(templatesRoot(), 'agents', 'AGENTS.md'), 'utf8');
+    expect(body).toMatch(/DOKAI\/openapi/);
   });
 });
 

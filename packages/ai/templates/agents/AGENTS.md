@@ -15,3 +15,11 @@ This project uses [DOKAI](https://github.com/hacoeur-24/dokai) for local-first d
   Group docs by feature/package, not by mirroring code folders.
 
 (Claude Code users also have `/set-documentation` and `/update-documentation` slash commands.)
+
+## OpenAPI specs
+
+Put OpenAPI/Swagger specs (`.yaml`/`.yml`/`.json`) under `DOKAI/openapi/` (folders allowed).
+DOKAI lists them in the sidebar "APIs" group and renders each as an interactive reference.
+A spec's lock icon and the Authorize/bearer-token flow come from the spec's
+`components.securitySchemes` plus per-operation `security` — no extra DOKAI config. Run requests
+live from the UI in `pnpm dokai` (the static `dokai build` export is read-only).
