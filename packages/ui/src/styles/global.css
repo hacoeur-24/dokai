@@ -1005,22 +1005,20 @@ milkdown-block-handle {
   }
 }
 
-/* Scalar's "Test Request" / API-client panel is a position:fixed overlay mounted IN-PLACE inside
- * our container (not teleported to <body>), and `.scalar-container` carries `will-change: opacity`
- * — which creates a stacking context that traps the fixed overlay, so a z-index on it cannot lift
- * it above DOKAI's sidebar/header. Two-part hard fix:
- * 1) Neutralize the will-change trap + give the open panel a max z-index (best-effort: lets the
- *    overlay itself sit on top where stacking permits).
- * 2) Guaranteed backstop: while the panel is open, hide DOKAI's own chrome (sidebar + header,
- *    marked `data-dokai-chrome`) so nothing of ours can paint over the full-screen panel. The
- *    panel covers their space anyway; they return the moment it closes. Pure CSS via :has() — no
- *    JS/observer/timing. */
-.scalar-container {
-  will-change: auto !important;
-}
-.scalar-container.scalar-client--open {
-  z-index: 2147483000;
-}
-body:has(.scalar-container.scalar-client--open) [data-dokai-chrome] {
-  visibility: hidden;
+/* Scalar's "Test Request" API client opens as a centered, INSET modal (.scalar-app-layout.scalar-client
+ * — margin:60px 25px, max-width:1390px, border-radius) sitting over a TRANSLUCENT scrim
+ * (.scalar-app-exit, rgba(0,0,0,.22)). In DOKAI's embedded layout that translucent scrim let our
+ * header/sidebar/doc content bleed through around the modal, so it read as "behind the sidebar".
+ * The modal already renders above DOKAI's chrome (Scalar's root .scalar is z-index:10000 in the root
+ * stacking context), so the clean, honest fix is to make the modal fill the viewport edge-to-edge:
+ * an opaque, full-bleed panel covers everything beneath it on its own. No z-index, will-change, or
+ * chrome-hiding tricks — those addressed a stacking problem that never existed (the issue was the
+ * inset + translucent presentation, not paint order). Verified full-bleed + opaque in light and dark. */
+.scalar-container .scalar-app-layout.scalar-client {
+  margin: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
 }

@@ -110,7 +110,6 @@ export function Layout() {
       {/* Sidebar + main content row fills the remaining vertical space. */}
       <div className="flex flex-1 overflow-hidden">
         <aside
-          data-dokai-chrome
           className={cn(
             'relative flex shrink-0 flex-col border-r transition-[width] duration-200 ease-out',
             collapsed ? 'w-0 border-r-0' : 'w-72',
