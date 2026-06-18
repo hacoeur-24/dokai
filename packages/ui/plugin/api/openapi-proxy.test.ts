@@ -2,11 +2,37 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAllowedHosts,
   filterForwardHeaders,
+  isBlockedHost,
   isHostAllowed,
   parseTargetUrl,
   readRawBody,
   resolveRedirectTarget,
 } from './openapi-proxy.js';
+
+describe('isBlockedHost', () => {
+  it('blocks the classic metadata IP 169.254.169.254', () => {
+    expect(isBlockedHost('169.254.169.254')).toBe(true);
+  });
+  it('blocks any IPv4 in the 169.254.0.0/16 link-local range', () => {
+    expect(isBlockedHost('169.254.0.1')).toBe(true);
+  });
+  it('blocks metadata.google.internal', () => {
+    expect(isBlockedHost('metadata.google.internal')).toBe(true);
+  });
+  it('does not block a normal host', () => {
+    expect(isBlockedHost('api.example.com')).toBe(false);
+  });
+  it('does not block a near-miss just outside the link-local range', () => {
+    expect(isBlockedHost('169.255.0.1')).toBe(false);
+  });
+});
+
+describe('isHostAllowed — metadata host denied even when allowlisted', () => {
+  it('denies metadata.google.internal even if in the allowed set', () => {
+    const allowed = buildAllowedHosts({ settingsHosts: ['metadata.google.internal'], specHosts: [] });
+    expect(isHostAllowed('metadata.google.internal', allowed)).toBe(false);
+  });
+});
 
 describe('parseTargetUrl', () => {
   it('accepts http/https', () => {

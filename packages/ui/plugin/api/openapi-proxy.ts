@@ -1,8 +1,25 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-/** Cloud-metadata IP — never a legitimate proxy target. */
-const BLOCKED_HOSTS = new Set(['169.254.169.254']);
 const LOOPBACK = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0']);
+
+/** True if the hostname is a cloud-metadata endpoint or IPv4 link-local address —
+ *  never a legitimate proxy target, refused even if explicitly allowlisted. */
+export function isBlockedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  // Known metadata hostnames and IPv6 metadata address (AWS IMDS over IPv6).
+  if (h === 'metadata.google.internal' || h === 'metadata.goog' || h === 'fd00:ec2::254') {
+    return true;
+  }
+  // Any IPv4 in the 169.254.0.0/16 link-local range (covers 169.254.169.254 — AWS/GCP/Azure metadata).
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(h);
+  if (m) {
+    const octets = m.slice(1).map((o) => Number(o));
+    if (octets.every((o) => o >= 0 && o <= 255) && octets[0] === 169 && octets[1] === 254) {
+      return true;
+    }
+  }
+  return false;
+}
 /** Hop-by-hop / connection headers we must not forward. */
 const DROP_HEADERS = new Set([
   'host',
@@ -39,7 +56,7 @@ export function buildAllowedHosts(opts: { settingsHosts: string[]; specHosts: st
 
 export function isHostAllowed(host: string, allowed: ReadonlySet<string>): boolean {
   const h = host.toLowerCase();
-  if (BLOCKED_HOSTS.has(h)) return false;
+  if (isBlockedHost(h)) return false;
   if (LOOPBACK.has(h)) return true;
   return allowed.has(h);
 }
