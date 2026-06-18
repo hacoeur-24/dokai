@@ -17,10 +17,23 @@ import {
   saveProjectSettings,
   saveUserSettings,
   scanDokai,
+  scanOpenApiSpecs,
   userSettingsSchema,
   type DocNode,
   type SectionNode,
 } from 'dokai-core/node';
+import { sectionMetadataSchema } from 'dokai-core';
+import { sectionJsonPath } from './folder.js';
+import { resolveSpecContentType } from './openapi-raw.js';
+import {
+  buildAllowedHosts,
+  describeUpstreamError,
+  filterForwardHeaders,
+  isHostAllowed,
+  parseTargetUrl,
+  readRawBody,
+  resolveRedirectTarget,
+} from './openapi-proxy.js';
 
 export interface DokaiApiOptions {
   server: ViteDevServer;
@@ -40,7 +53,16 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     '/api/manifest',
     wrap(async (_req, res) => {
       const tree = await scanDokai({ dokaiRoot });
-      sendJson(res, { tree, docs: collectDocSummaries(tree) });
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = loaded.project.openapi.enabled
+        ? await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir })
+        : { specs: [] };
+      sendJson(res, {
+        tree,
+        docs: collectDocSummaries(tree),
+        specs,
+        capabilities: { tryItOut: mode === 'dev' },
+      });
     }),
   );
 
@@ -83,6 +105,22 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
       const filename = relativePath.split('/').pop() ?? 'document.md';
       res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'no-cache');
+      createReadStream(target).pipe(res);
+    }),
+  );
+
+  server.middlewares.use(
+    '/api/openapi/raw',
+    wrap(async (req, res) => {
+      const url = new URL(req.url ?? '/', 'http://x');
+      const rel = url.searchParams.get('path');
+      if (!rel) return sendError(res, 400, 'Missing ?path=');
+      const contentType = resolveSpecContentType(rel);
+      if (!contentType) return sendError(res, 400, 'Spec path must be .yaml/.yml/.json');
+      const target = resolveSafePath(dokaiRoot, rel);
+      if (!target || !existsSync(target)) return sendError(res, 404, `No spec at "${rel}"`);
+      res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-cache');
       createReadStream(target).pipe(res);
     }),
@@ -174,6 +212,33 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
   );
 
   server.middlewares.use(
+    '/api/folder',
+    wrap(async (req, res) => {
+      if (!writesEnabled) return sendError(res, 405, 'Writes disabled in static build');
+      const method = (req.method ?? '').toUpperCase();
+      if (method !== 'POST') return sendError(res, 405, `Method ${method} not allowed`);
+      const url = new URL(req.url ?? '/', 'http://x');
+      const folderPath = url.searchParams.get('path');
+      if (!folderPath) return sendError(res, 400, 'Missing ?path=');
+      const body = await readJsonBody(req);
+      const parsed = sectionMetadataSchema.safeParse(body);
+      if (!parsed.success) {
+        return sendError(
+          res,
+          400,
+          parsed.error.issues.map((issue: { message: string }) => issue.message).join('; '),
+        );
+      }
+      const target = resolveSafePath(dokaiRoot, sectionJsonPath(folderPath));
+      if (!target) return sendError(res, 400, 'path resolves outside DOKAI/');
+      if (existsSync(target)) return sendError(res, 409, `Folder already exists: ${folderPath}`);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, JSON.stringify(parsed.data, null, 2) + '\n', 'utf8');
+      return sendJson(res, { ok: true });
+    }),
+  );
+
+  server.middlewares.use(
     '/api/settings',
     wrap(async (req, res) => {
       const method = (req.method ?? 'GET').toUpperCase();
@@ -229,7 +294,11 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     '/api/search-index',
     wrap(async (_req, res) => {
       const tree = await scanDokai({ dokaiRoot });
-      const file = await buildSearchIndex(tree, defaultSearchIndexPath(dokaiRoot));
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = loaded.project.openapi.enabled
+        ? await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir })
+        : { specs: [] };
+      const file = await buildSearchIndex(tree, defaultSearchIndexPath(dokaiRoot), { specs });
       sendJson(res, file);
     }),
   );
@@ -239,6 +308,87 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     wrap(async (_req, res) => {
       const info = await detectRepo({ root: repoRoot });
       sendJson(res, info);
+    }),
+  );
+
+  server.middlewares.use(
+    '/api/openapi/proxy',
+    wrap(async (req, res) => {
+      if (mode !== 'dev') return sendError(res, 405, 'Try-it-out is only available in `dokai dev`');
+      const url = new URL(req.url ?? '/', 'http://x');
+      const target = parseTargetUrl(url.searchParams.get('scalar_url'));
+      if (!target) return sendError(res, 400, 'Missing or invalid ?scalar_url=');
+
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir });
+      const allowed = buildAllowedHosts({
+        settingsHosts: loaded.project.openapi.allowedHosts,
+        specHosts: specs.flatMap((s) => s.serverHosts),
+      });
+      if (!isHostAllowed(target.hostname, allowed)) {
+        return sendError(
+          res,
+          403,
+          `Host "${target.hostname}" is not allowed. Add it to settings.json openapi.allowedHosts.`,
+        );
+      }
+
+      const method = (req.method ?? 'GET').toUpperCase();
+      const hasBody = method !== 'GET' && method !== 'HEAD';
+      const body = hasBody ? await readRawBody(req, 10 * 1024 * 1024) : undefined;
+      const forwardedHeaders = filterForwardHeaders(req.headers);
+
+      const MAX_REDIRECTS = 5;
+      let currentUrl = target.toString();
+      let currentMethod = method;
+      let currentBody: Buffer | undefined = body;
+      let upstream: Response | null = null;
+
+      for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+        if (hop === MAX_REDIRECTS) {
+          return sendError(res, 502, 'Too many redirects');
+        }
+        let response: Response;
+        try {
+          response = await fetch(currentUrl, {
+            method: currentMethod,
+            headers: forwardedHeaders,
+            body: currentBody,
+            redirect: 'manual',
+          });
+        } catch (err) {
+          // The upstream API server is unreachable (down, wrong host, refused, DNS, timeout).
+          // Return a clear 502 the UI can show instead of leaking an opaque "fetch failed" stack.
+          return sendError(res, 502, describeUpstreamError(new URL(currentUrl), err));
+        }
+        const status = response.status;
+        if (status >= 300 && status < 400) {
+          const location = response.headers.get('location');
+          const next = resolveRedirectTarget(location, currentUrl, allowed);
+          if (!next) {
+            return sendError(res, 403, 'Redirect to a disallowed host was blocked');
+          }
+          currentUrl = next.toString();
+          // 307/308: preserve method + body; 301/302/303: switch to GET, drop body
+          if (status === 307 || status === 308) {
+            // keep currentMethod and currentBody
+          } else {
+            currentMethod = 'GET';
+            currentBody = undefined;
+          }
+          continue;
+        }
+        upstream = response;
+        break;
+      }
+
+      if (!upstream) return sendError(res, 502, 'Too many redirects');
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      res.statusCode = upstream.status;
+      const ct = upstream.headers.get('content-type');
+      if (ct) res.setHeader('Content-Type', ct);
+      res.setHeader('Cache-Control', 'no-store');
+      res.end(buf);
     }),
   );
 

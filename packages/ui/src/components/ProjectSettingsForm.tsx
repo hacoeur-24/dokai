@@ -11,12 +11,38 @@ import {
   Square,
   Download,
   FileType2,
+  Link,
 } from 'lucide-react';
 import type { ProjectSettings } from 'dokai-core';
 import { saveProjectSettings } from '../lib/api.js';
 import { useRefresh } from '../state.js';
 import { useToast } from './Toast.js';
 import { useT } from '../i18n/index.js';
+import { Dropdown } from './Dropdown.js';
+import { InfoTip } from './InfoTip.js';
+
+const LOGO_SNIPPETS: Record<string, string> = {
+  relativePrefix: './foo',
+  folder: 'DOKAI/',
+  absolutePrefix: '/foo',
+  urlPrefix: 'https://…',
+};
+
+function renderHintWithCode(template: string): ReactNode {
+  return template
+    .split(/(\{relativePrefix\}|\{folder\}|\{absolutePrefix\}|\{urlPrefix\})/g)
+    .map((part, i) => {
+      const m = /^\{(\w+)\}$/.exec(part);
+      const snippet = m ? LOGO_SNIPPETS[m[1] ?? ''] : undefined;
+      return snippet ? (
+        <code key={i} className="font-mono">
+          {snippet}
+        </code>
+      ) : (
+        <span key={i}>{part}</span>
+      );
+    });
+}
 
 export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
   const refresh = useRefresh();
@@ -99,6 +125,7 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
         <Field
           icon={<ImageIcon className="h-3.5 w-3.5" />}
           label={t('settings.project.logo', { optional: t('common.optional') })}
+          help={<span>{renderHintWithCode(t('settings.project.logoHint'))}</span>}
         >
           <input
             type="text"
@@ -107,11 +134,34 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
             placeholder="/public/logo.svg"
             className="dokai-control"
           />
-          <p className="mt-1.5 text-[0.7rem]" style={{ color: 'var(--color-fg-subtle)' }}>
-            <code className="font-mono">./foo</code> → relative to{' '}
-            <code className="font-mono">DOKAI/</code> · <code className="font-mono">/foo</code> →
-            relative to the repo root · <code className="font-mono">https://…</code> → external URL
-          </p>
+        </Field>
+
+        <Field
+          icon={<Link className="h-3.5 w-3.5" />}
+          label={t('settings.project.githubUrl')}
+          help={t('settings.project.githubUrlHint')}
+        >
+          <input
+            type="url"
+            value={draft.githubUrl ?? ''}
+            onChange={(e) => update({ githubUrl: e.target.value || undefined })}
+            placeholder="https://github.com/org/repo"
+            className="dokai-control"
+          />
+        </Field>
+
+        <Field
+          icon={<Link className="h-3.5 w-3.5" />}
+          label={t('settings.project.appUrl')}
+          help={t('settings.project.appUrlHint')}
+        >
+          <input
+            type="url"
+            value={draft.appUrl ?? ''}
+            onChange={(e) => update({ appUrl: e.target.value || undefined })}
+            placeholder="https://app.example.com"
+            className="dokai-control"
+          />
         </Field>
 
         <Group icon={<Palette className="h-3.5 w-3.5" />} title={t('settings.project.theme')}>
@@ -120,19 +170,16 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
               icon={<SunMoon className="h-3.5 w-3.5" />}
               label={t('settings.project.themeMode')}
             >
-              <select
+              <Dropdown<ProjectSettings['theme']['defaultMode']>
+                fullWidth
                 value={draft.theme.defaultMode}
-                onChange={(e) =>
-                  updateNested('theme', {
-                    defaultMode: e.target.value as ProjectSettings['theme']['defaultMode'],
-                  })
-                }
-                className="dokai-control"
-              >
-                <option value="system">{t('themeMode.system')}</option>
-                <option value="light">{t('themeMode.light')}</option>
-                <option value="dark">{t('themeMode.dark')}</option>
-              </select>
+                options={[
+                  { value: 'system', label: t('themeMode.system') },
+                  { value: 'light', label: t('themeMode.light') },
+                  { value: 'dark', label: t('themeMode.dark') },
+                ]}
+                onChange={(v) => updateNested('theme', { defaultMode: v })}
+              />
             </Field>
             <Field
               icon={<Droplet className="h-3.5 w-3.5" />}
@@ -149,20 +196,17 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
               icon={<Square className="h-3.5 w-3.5" />}
               label={t('settings.project.themeRadius')}
             >
-              <select
+              <Dropdown<ProjectSettings['theme']['radius']>
+                fullWidth
                 value={draft.theme.radius}
-                onChange={(e) =>
-                  updateNested('theme', {
-                    radius: e.target.value as ProjectSettings['theme']['radius'],
-                  })
-                }
-                className="dokai-control"
-              >
-                <option value="none">{t('radius.none')}</option>
-                <option value="small">{t('radius.small')}</option>
-                <option value="medium">{t('radius.medium')}</option>
-                <option value="large">{t('radius.large')}</option>
-              </select>
+                options={[
+                  { value: 'none', label: t('radius.none') },
+                  { value: 'small', label: t('radius.small') },
+                  { value: 'medium', label: t('radius.medium') },
+                  { value: 'large', label: t('radius.large') },
+                ]}
+                onChange={(v) => updateNested('theme', { radius: v })}
+              />
             </Field>
           </div>
         </Group>
@@ -171,22 +215,17 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
           <Field
             icon={<FileType2 className="h-3.5 w-3.5" />}
             label={t('settings.project.defaultFormat')}
+            help={t('settings.project.defaultFormatHint')}
           >
-            <select
+            <Dropdown<ProjectSettings['downloads']['defaultFormat']>
+              fullWidth
               value={draft.downloads.defaultFormat}
-              onChange={(e) =>
-                updateNested('downloads', {
-                  defaultFormat: e.target.value as ProjectSettings['downloads']['defaultFormat'],
-                })
-              }
-              className="dokai-control"
-            >
-              <option value="markdown">{t('downloadFormat.markdown')}</option>
-              <option value="pdf">{t('downloadFormat.pdf')}</option>
-            </select>
-            <p className="mt-1.5 text-[0.7rem]" style={{ color: 'var(--color-fg-subtle)' }}>
-              {t('settings.project.defaultFormatHint')}
-            </p>
+              options={[
+                { value: 'markdown', label: t('downloadFormat.markdown') },
+                { value: 'pdf', label: t('downloadFormat.pdf') },
+              ]}
+              onChange={(v) => updateNested('downloads', { defaultFormat: v })}
+            />
           </Field>
         </Group>
       </div>
@@ -231,10 +270,12 @@ export function ProjectSettingsForm({ initial }: { initial: ProjectSettings }) {
 function Field({
   label,
   icon,
+  help,
   children,
 }: {
   label: string;
   icon?: ReactNode;
+  help?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -245,6 +286,7 @@ function Field({
       >
         {icon}
         {label}
+        {help && <InfoTip content={help} />}
       </span>
       {children}
     </label>

@@ -1,9 +1,9 @@
 ---
-name: dokai
-description: Use when reading, writing, or updating documentation in a repository that uses DOKAI (a committed DOKAI/ markdown tree served by a local UI). Covers running the CLI, the frontmatter/section/Mermaid conventions, and the author-from-scratch and incremental-update workflows. Works with any coding agent.
+name: dokai-docs
+description: Use when reading, writing, or updating documentation in a repository that uses DOKAI (a committed DOKAI/ markdown tree served by a local UI). Covers running the CLI, the frontmatter/section/Mermaid conventions, and the author-from-scratch and incremental-update workflows.
 ---
 
-# Working with DOKAI
+# Working with DOKAI docs
 
 This project uses **DOKAI** for local-first documentation: a `DOKAI/` folder of markdown files,
 committed to Git, served by a local web UI. The engine and UI live in the installed `dokai-kit`
@@ -114,6 +114,6 @@ images; mixing the two settings files; rewriting everything on a routine update.
 
 ---
 
-In **Claude Code**, the `/set-documentation` and `/update-documentation` slash commands run
-Workflows A and B interactively. With any other agent, follow the steps above directly — they are
-the same workflow. See `examples/` for a good vs. bad architecture doc.
+In Claude Code, the `/set-documentation` and `/update-documentation` slash commands (and the
+`dokai` sub-agent) drive these workflows interactively. See `examples/` for a good vs. bad
+architecture doc.

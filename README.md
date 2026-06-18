@@ -93,6 +93,68 @@ dokai dev                  # http://localhost:8128
 
 ---
 
+## Step-by-step setup guide
+
+### 1. Install and scaffold
+
+```bash
+pnpm add -D dokai-kit
+pnpm exec dokai init
+```
+
+**Single-package repo?** Init finishes immediately — no prompts.
+
+**Monorepo?** DOKAI auto-detects pnpm / npm / yarn workspaces and Turborepo. It opens an interactive multiselect asking which workspace packages to map to documentation sections (Space to toggle, Enter to confirm). Accept everything at once with `--yes`, or cherry-pick up front with `--workspace <name...>`:
+
+```bash
+pnpm exec dokai init --yes                          # map all packages
+pnpm exec dokai init --workspace apps/web packages/api   # pick specific ones
+```
+
+### 2. Boot the docs UI
+
+```bash
+pnpm dokai    # http://localhost:8128
+```
+
+That's the live editor — WYSIWYG + raw markdown, search, Mermaid diagrams, and the OpenAPI explorer (if you have specs in `DOKAI/openapi/`).
+
+### 3. Generate the docs
+
+#### Using Claude Code
+
+After init, two slash commands are ready in Claude Code:
+
+- **`/set-documentation`** — first-time full generation. Runs a deep read of your codebase and authors the complete `DOKAI/` markdown tree and/or OpenAPI specs. Opens with a scope prompt (**Docs** and **API endpoints**, both checked by default) so you can generate one or both.
+- **`/update-documentation`** — refresh after code changes. Same scope prompt; targets drift and gaps rather than regenerating from scratch.
+
+There is also a **`dokai` sub-agent** for hands-off authoring: ask it to "set up the DOKAI docs" or "update the API specs" and it will detect the repo shape, read the codebase, write everything, and summarize what it created or left as `TBD`.
+
+#### Using Cursor, Codex, or any other agent
+
+Just ask: _"set up the documentation"_ or _"update the API documentation"_ — that's it. DOKAI installed skills at `.agents/skills/dokai-docs/` and `.agents/skills/dokai-api/` that carry the full authoring and update workflows, and the repo root `AGENTS.md` points every agent there automatically.
+
+### 4. What gets scaffolded
+
+`dokai init` writes these into your repo:
+
+| Path | What it is |
+| ---- | ---------- |
+| `DOKAI/` | Your documentation tree (markdown, committed to Git) |
+| `.claude/agents/dokai.md` | Claude sub-agent for hands-off doc + API authoring |
+| `.claude/commands/set-documentation.md` | `/set-documentation` slash command |
+| `.claude/commands/update-documentation.md` | `/update-documentation` slash command |
+| `.claude/skills/dokai-docs/` | Lean doc conventions reference for Claude |
+| `.claude/skills/dokai-api/` | Lean OpenAPI conventions reference for Claude |
+| `.agents/skills/dokai-docs/` | Full doc authoring skill for all other agents |
+| `.agents/skills/dokai-api/` | Full OpenAPI authoring skill for all other agents |
+| `CLAUDE.md` | Managed block pointing Claude at the commands + skills |
+| `AGENTS.md` | Managed block pointing other agents at the skills |
+
+`package.json` gets `dokai` scripts and `.gitignore` gets the cache patterns. Skip Claude assets with `--no-claude`, or agent assets with `--no-agents`.
+
+---
+
 ## Daily commands
 
 | Command          | What it does                                                                           |
@@ -113,17 +175,27 @@ After `dokai init`, the same commands are available as package scripts (`pnpm do
 
 ```
 your-repo/
-├─ DOKAI/                      # your documentation (markdown, committed to Git)
+├─ DOKAI/                           # your documentation (markdown, committed to Git)
 │  ├─ index.md
-│  ├─ _section.json            # section title + ordering metadata
-│  ├─ settings.json            # project settings (committed, team-shared)
-│  ├─ user-settings.local.json # per-user overrides (gitignored)
-│  └─ .dokai/                  # search index + static build cache (gitignored)
-├─ .claude/                    # Claude Code slash commands + dokai skill
-├─ .agents/skills/dokai/       # the same skill, for any other agent
-├─ AGENTS.md                   # points agents at the skill (managed block)
-├─ package.json                # patched with "dokai" scripts (your values preserved)
-└─ .gitignore                  # patched with DOKAI cache patterns
+│  ├─ _section.json                 # section title + ordering metadata
+│  ├─ settings.json                 # project settings (committed, team-shared)
+│  ├─ openapi/                      # OpenAPI specs (optional, authored by AI or by hand)
+│  ├─ user-settings.local.json      # per-user overrides (gitignored)
+│  └─ .dokai/                       # search index + static build cache (gitignored)
+├─ .claude/
+│  ├─ agents/dokai.md               # Claude sub-agent for hands-off authoring
+│  ├─ commands/set-documentation.md # /set-documentation slash command
+│  ├─ commands/update-documentation.md
+│  ├─ skills/dokai-docs/            # doc conventions reference (Claude)
+│  └─ skills/dokai-api/             # OpenAPI conventions reference (Claude)
+├─ .agents/
+│  └─ skills/
+│     ├─ dokai-docs/                # full doc authoring skill (all other agents)
+│     └─ dokai-api/                 # full OpenAPI authoring skill (all other agents)
+├─ CLAUDE.md                        # managed block — points Claude at commands + skills
+├─ AGENTS.md                        # managed block — points other agents at the skills
+├─ package.json                     # patched with "dokai" scripts (your values preserved)
+└─ .gitignore                       # patched with DOKAI cache patterns
 ```
 
 Only your data lands in the repo. The engine, the React UI, and the Vite server all live inside the installed `dokai-kit` package and operate on your `DOKAI/` folder through local `/api` middleware.
@@ -132,12 +204,13 @@ Only your data lands in the repo. The engine, the React UI, and the Vite server 
 
 ## AI agent integration
 
-`dokai init` makes the docs workflow available to **any coding agent**, not just Claude Code:
+`dokai init` makes the docs and OpenAPI workflow available to **any coding agent**, not just Claude Code:
 
-- **Every agent** gets a single skill at `.agents/skills/dokai/SKILL.md` — how to run DOKAI, the frontmatter/section/Mermaid conventions, and the author-from-scratch and incremental-update workflows. A managed block in the repo root **`AGENTS.md`** points agents (Codex, Cursor, Gemini, etc.) at it. The same skill is mirrored into `.claude/skills/dokai/` for Claude Code.
-- **Claude Code** additionally gets two slash commands — **`/set-documentation`** (author a fresh tree) and **`/update-documentation`** (keep docs in sync) — that run those workflows interactively.
+- **Every agent** gets two focused skills: **`dokai-docs`** (documentation conventions and the author/update workflow) and **`dokai-api`** (OpenAPI spec conventions and the derive-from-code workflow), both under `.agents/skills/`. A managed block in the repo root **`AGENTS.md`** points Codex, Cursor, Gemini, and others at both skills automatically.
+- **Claude Code** additionally gets a **`dokai` sub-agent** and two slash commands — **`/set-documentation`** (author from scratch) and **`/update-documentation`** (refresh after code changes). Both commands open with a scope prompt (Docs, API endpoints, or both) before running. The Claude skills under `.claude/skills/` are lean references; the slash commands and sub-agent carry the full workflow.
+- **`CLAUDE.md`** (Claude-optimized) and **`AGENTS.md`** (all other agents) both receive an idempotent managed `dokai` block on init, so each agent type sees docs context in the format it reads best.
 
-`AGENTS.md` is patched idempotently: an existing one keeps your content and only gains a small managed `dokai` block. Skip the Claude assets with `dokai init --no-claude`, or the agent assets with `--no-agents`.
+Skip the Claude assets with `dokai init --no-claude`, or the agent assets with `--no-agents`.
 
 ---
 

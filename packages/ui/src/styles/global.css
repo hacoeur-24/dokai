@@ -11,6 +11,10 @@
   --font-mono:
     'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 
+  /* Height of the full-width app header (AppHeader). Single source of truth — referenced by the
+   * header itself and by the Scalar "Test Request" overlay so the client stays below the header. */
+  --dokai-header-height: 52px;
+
   --color-bg: hsl(220 20% 99%);
   --color-bg-subtle: hsl(220 18% 96%);
   --color-bg-muted: hsl(220 18% 92%);
@@ -167,7 +171,7 @@
 
 /* Markdown body container. Tight prose; documentation-tool spacing. */
 .prose-doc {
-  max-width: 70ch;
+  max-width: 76ch;
   font-size: 0.97rem;
   line-height: 1.7;
   color: var(--color-fg);
@@ -720,6 +724,31 @@ milkdown-block-handle {
   transform: scale(0.94);
 }
 
+/* ----- App header external links -----
+   Used for GitHub / Application links in the top header. Inline-flex pill with icon + text,
+   token-based so it adapts to light/dark automatically. */
+.dokai-header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.dokai-header-link:hover {
+  background: var(--color-bg-muted);
+  border-color: var(--color-border);
+  color: var(--color-fg);
+}
+
 /* ----- Context menu (Radix) -----
    Used for the right-click panel on sidebar document rows. Same visual language as the
    command palette + create dialog. */
@@ -843,6 +872,103 @@ milkdown-block-handle {
   background: var(--color-bg-muted);
 }
 
+/* ----- Tooltip bubble -----
+   Inverted tokens: dark bubble on light theme (contrasts the light bg);
+   under [data-theme='dark'] we flip to a surface bg with a border so it
+   remains readable against the dark background. */
+.dokai-tooltip {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  border-radius: var(--radius-control);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  max-width: 18rem;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
+  z-index: 50;
+}
+[data-theme='dark'] .dokai-tooltip {
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+}
+
+/* ----- InfoTip -----
+   Inline info icon + CSS-only hover/focus tooltip. The bubble is hidden until
+   the sibling trigger button is hovered or focused. `position: relative` on the
+   wrapper keeps the bubble anchored without a portal. */
+.dokai-infotip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.dokai-infotip__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-fg-muted);
+  border-radius: var(--radius-control);
+  transition: color 120ms ease;
+  line-height: 1;
+}
+.dokai-infotip__trigger:hover,
+.dokai-infotip__trigger:focus-visible {
+  color: var(--color-fg);
+  outline: none;
+}
+.dokai-infotip__trigger:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+.dokai-infotip__bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4rem);
+  transform: translateX(-50%);
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.dokai-infotip:has(.dokai-infotip__trigger:hover) .dokai-infotip__bubble,
+.dokai-infotip:has(.dokai-infotip__trigger:focus-visible) .dokai-infotip__bubble {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ----- Dropdown select trigger -----
+   A `.dokai-control` button that acts as a select trigger. Overrides the default
+   block width so it can be used inline, and lays out icon + label + chevron in a row. */
+.dokai-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: left;
+  cursor: pointer;
+  padding-right: 0.5rem;
+}
+.dokai-select-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dokai-select-trigger__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dokai-select-trigger__chevron {
+  flex-shrink: 0;
+  color: var(--color-fg-muted);
+  transition: transform 200ms ease;
+}
+.dokai-select-trigger[data-state='open'] .dokai-select-trigger__chevron {
+  transform: rotate(180deg);
+}
+
 /* ----- Print stylesheet -----
    Triggered when the user picks "Download as PDF" — DocView toggles `data-print="true"` on
    <html>, calls window.print(), then clears the flag. The browser's print dialog handles the
@@ -881,4 +1007,20 @@ milkdown-block-handle {
   html[data-print='true'] figure {
     page-break-inside: avoid;
   }
+}
+
+/* Scalar's "Test Request" client opens as a centered modal (.scalar-app-layout.scalar-client) over a
+ * full-viewport scrim (.scalar-app-exit). Kept as Scalar's default modal style — but confined to the
+ * area BELOW DOKAI's header. The scrim/modal start at --dokai-header-height instead of the viewport
+ * top, so the header is never covered (stays clean and clickable) and the modal's controls — its
+ * close button included — are always reachable, no matter how the two stack. Opening the client also
+ * collapses the sidebar (Layout: effectiveCollapsed = collapsed || clientOpen), so the modal owns the
+ * full content area; re-opening the sidebar (header toggle) closes the client. See useScalarClient. */
+.scalar-container {
+  top: var(--dokai-header-height) !important;
+  height: auto !important; /* with the base rule's bottom:0, height becomes viewport minus header */
+}
+.scalar-container .scalar-app-exit {
+  top: var(--dokai-header-height) !important;
+  height: calc(100vh - var(--dokai-header-height)) !important;
 }

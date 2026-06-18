@@ -1,5 +1,6 @@
 {
   "common.save": "Save",
+  "common.moreInfo": "More information",
   "common.saving": "Saving…",
   "common.saved": "Saved",
   "common.cancel": "Cancel",
@@ -33,8 +34,15 @@
   "sidebar.collapse": "Collapse sidebar",
   "sidebar.expandShortcut": "Expand sidebar (⌘B)",
   "sidebar.collapseShortcut": "Collapse sidebar (⌘B)",
+  "sidebar.collapseAll": "Collapse all",
+  "sidebar.expandAll": "Expand all",
+  "sidebar.apis": "APIs",
+
+  "header.github": "GitHub",
+  "header.application": "Application",
 
   "layout.newDoc": "New document",
+  "layout.createNew": "Create new",
   "layout.search": "Search…",
   "layout.searchShortcut": "Search (⌘K)",
   "layout.settings": "Settings",
@@ -55,6 +63,17 @@
   "doc.pdfDownloaded": "PDF downloaded",
   "doc.pdfFailed": "PDF download failed: {error}",
   "doc.downloadFailed": "Download failed: {error}",
+
+  "diagram.title": "Diagram",
+  "diagram.copySource": "Copy source",
+  "diagram.copied": "Copied!",
+  "diagram.downloadSvg": "SVG",
+  "diagram.downloadPng": "PNG",
+  "diagram.close": "Close",
+  "diagram.closeEsc": "Close (Esc)",
+  "diagram.zoomIn": "Zoom in",
+  "diagram.zoomOut": "Zoom out",
+  "diagram.fit": "Fit to screen",
 
   "context.open": "Open",
   "context.edit": "Edit",
@@ -94,6 +113,7 @@
   "search.placeholder": "Search across all documentation…",
   "search.noResults": "No results for \"{query}\".",
   "search.empty": "Type to search by title, headings, tags, or body content.",
+  "search.filters": "Filters",
   "search.statusLabel": "status",
   "search.versionLabel": "version",
   "search.allOption": "all",
@@ -114,6 +134,10 @@
   "settings.project.downloads": "Downloads",
   "settings.project.defaultFormat": "Default format",
   "settings.project.defaultFormatHint": "Used by the right-click Download action and as the highlighted option in the in-doc download dropdown.",
+  "settings.project.githubUrl": "GitHub URL",
+  "settings.project.githubUrlHint": "Link shown in the header. Full URL to your repository.",
+  "settings.project.appUrl": "Application URL",
+  "settings.project.appUrlHint": "Link shown in the header. Full URL to your application.",
   "settings.project.saved": "Project settings saved",
   "settings.project.saveFailed": "Couldn't save project settings: {error}",
 
@@ -158,5 +182,16 @@
   "create.placeholder": "Untitled",
   "create.descriptionPlaceholder": "Optional one-line description",
   "create.confirm": "Create",
-  "create.created": "Document created"
+  "create.created": "Document created",
+  "create.kindDocument": "Document",
+  "create.kindFolder": "Folder",
+  "create.location": "Location",
+  "create.locationRoot": "Root",
+  "create.folderName": "Folder name",
+  "create.titleFolder": "Create folder",
+  "create.docNamePlaceholder": "API endpoints",
+  "create.folderPlaceholder": "my-folder",
+  "create.pathPreview": "Will create",
+
+  "openapi.specNotFound": "No API spec found for {route}."
 }

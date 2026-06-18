@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Copy, Download, X, FileImage, FileCode2, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { renderMermaid } from '../lib/mermaid.js';
 import { downloadPng, downloadSvg } from '../lib/diagram-export.js';
+import { useT } from '../i18n/index.js';
 
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 8;
@@ -10,6 +11,7 @@ const FIT_PADDING = 40;
 const FIT_MAX = 1.5;
 
 export function FullscreenDiagram({ source, onClose }: { source: string; onClose: () => void }) {
+  const t = useT();
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const naturalSizeRef = useRef<{ width: number; height: number } | null>(null);
@@ -152,7 +154,7 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
       style={{ backdropFilter: 'blur(2px)' }}
     >
       <header className="flex items-center justify-between border-b px-5 py-3">
-        <p className="dokai-eyebrow">Diagram</p>
+        <p className="dokai-eyebrow">{t('diagram.title')}</p>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -164,7 +166,7 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm hover:bg-[var(--color-bg-muted)]"
           >
             <Copy className="h-3.5 w-3.5" />
-            {copied ? 'Copied!' : 'Copy source'}
+            {copied ? t('diagram.copied') : t('diagram.copySource')}
           </button>
           <button
             type="button"
@@ -175,7 +177,7 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm hover:bg-[var(--color-bg-muted)]"
           >
             <FileCode2 className="h-3.5 w-3.5" />
-            SVG
+            {t('diagram.downloadSvg')}
           </button>
           <button
             type="button"
@@ -186,16 +188,16 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm hover:bg-[var(--color-bg-muted)]"
           >
             <FileImage className="h-3.5 w-3.5" />
-            PNG
+            {t('diagram.downloadPng')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border px-3 py-1.5 text-sm hover:bg-[var(--color-bg-muted)]"
-            title="Close (Esc)"
+            title={t('diagram.closeEsc')}
           >
             <X className="h-3.5 w-3.5" />
-            Close
+            {t('diagram.close')}
           </button>
         </div>
       </header>
@@ -222,8 +224,8 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             onClick={() => applyScale(scaleRef.current / BUTTON_ZOOM_STEP)}
             className="inline-flex h-8 w-8 items-center justify-center rounded hover:bg-[var(--color-bg-muted)] disabled:opacity-40"
             disabled={scale <= MIN_SCALE + 1e-3}
-            title="Zoom out"
-            aria-label="Zoom out"
+            title={t('diagram.zoomOut')}
+            aria-label={t('diagram.zoomOut')}
           >
             <ZoomOut className="h-4 w-4" />
           </button>
@@ -238,8 +240,8 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             onClick={() => applyScale(scaleRef.current * BUTTON_ZOOM_STEP)}
             className="inline-flex h-8 w-8 items-center justify-center rounded hover:bg-[var(--color-bg-muted)] disabled:opacity-40"
             disabled={scale >= MAX_SCALE - 1e-3}
-            title="Zoom in"
-            aria-label="Zoom in"
+            title={t('diagram.zoomIn')}
+            aria-label={t('diagram.zoomIn')}
           >
             <ZoomIn className="h-4 w-4" />
           </button>
@@ -247,8 +249,8 @@ export function FullscreenDiagram({ source, onClose }: { source: string; onClose
             type="button"
             onClick={fitToScreen}
             className="inline-flex h-8 w-8 items-center justify-center rounded hover:bg-[var(--color-bg-muted)]"
-            title="Fit to screen"
-            aria-label="Fit to screen"
+            title={t('diagram.fit')}
+            aria-label={t('diagram.fit')}
           >
             <Maximize className="h-4 w-4" />
           </button>

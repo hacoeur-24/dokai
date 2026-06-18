@@ -4,11 +4,13 @@
  * - Write endpoints work only in dev mode and throw on the static build.
  */
 
-import type { DocNode, Frontmatter, ProjectSettings, SectionNode, UserSettings } from 'dokai-core';
+import type { DocNode, Frontmatter, OpenApiSpecMeta, ProjectSettings, SectionNode, UserSettings } from 'dokai-core';
 
 export interface Manifest {
   tree: SectionNode;
   docs: Array<Pick<DocNode, 'route' | 'frontmatter' | 'workspace' | 'relativePath'>>;
+  specs: OpenApiSpecMeta[];
+  capabilities: { tryItOut: boolean };
 }
 
 export interface SettingsBundle {
@@ -82,6 +84,12 @@ export const createDoc = (
   body: { title: string; description?: string; body?: string },
 ): Promise<{ ok: true; route: string }> =>
   sendJson('POST', `/api/doc?route=${encodeURIComponent(route)}`, body);
+
+export const createFolder = (
+  relativePath: string,
+  metadata: { title: string; description?: string },
+): Promise<{ ok: true }> =>
+  sendJson('POST', `/api/folder?path=${encodeURIComponent(relativePath)}`, metadata);
 
 export const renameDoc = (
   route: string,

@@ -1,5 +1,11 @@
 import { resolve, join } from 'node:path';
-import { scanDokai, buildSearchIndex, defaultSearchIndexPath } from 'dokai-core/node';
+import {
+  scanDokai,
+  buildSearchIndex,
+  defaultSearchIndexPath,
+  loadSettings,
+  scanOpenApiSpecs,
+} from 'dokai-core/node';
 import { scaffoldAgentAssets } from '../scaffold/agents.js';
 import { log } from '../lib/log.js';
 
@@ -32,8 +38,12 @@ export async function runGenerate(options: GenerateOptions = {}): Promise<void> 
 
   if (!options.noSearch) {
     const tree = await scanDokai({ dokaiRoot });
+    const loaded = await loadSettings(dokaiRoot);
+    const { specs } = loaded.project.openapi.enabled
+      ? await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir })
+      : { specs: [] };
     const indexPath = defaultSearchIndexPath(dokaiRoot);
-    const index = await buildSearchIndex(tree, indexPath);
+    const index = await buildSearchIndex(tree, indexPath, { specs });
     log.success(`Built search index (${index.documents.length} docs) → ${indexPath}`);
   }
 }

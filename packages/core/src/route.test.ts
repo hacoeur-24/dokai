@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anchorRoute, pathToRoute, routeToPath } from './route.js';
+import { anchorRoute, pathToRoute, routeToPath, API_ROUTE_PREFIX, openapiRouteForRelpath } from './route.js';
 
 describe('pathToRoute', () => {
   it('maps the root index to /dokai', () => {
@@ -43,5 +43,15 @@ describe('anchorRoute', () => {
 
   it('returns the route unchanged when slug is empty', () => {
     expect(anchorRoute('/dokai/backend/api', '')).toBe('/dokai/backend/api');
+  });
+});
+
+describe('openapiRouteForRelpath', () => {
+  it('builds an _api route from a dir-relative path', () => {
+    expect(openapiRouteForRelpath('billing/payments')).toBe('/dokai/_api/billing/payments');
+    expect(openapiRouteForRelpath('auth')).toBe('/dokai/_api/auth');
+  });
+  it('returns the bare prefix for an empty relpath', () => {
+    expect(openapiRouteForRelpath('')).toBe(API_ROUTE_PREFIX);
   });
 });

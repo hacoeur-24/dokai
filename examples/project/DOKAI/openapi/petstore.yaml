@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: Petstore API
+  version: 1.0.0
+  description: A tiny sample API used by the DOKAI example fixture.
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /pets:
+    get:
+      summary: List pets
+      responses:
+        '200':
+          description: A list of pets.
+    post:
+      summary: Create a pet
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created.

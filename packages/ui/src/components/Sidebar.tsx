@@ -1,13 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { ChevronRight, FileText, Folder, FolderOpen, Plus } from 'lucide-react';
+import { ChevronRight, FileText, Folder, FolderOpen, Globe, Lock, Plus, Webhook } from 'lucide-react';
 import type { SectionNode } from 'dokai-core';
-import { useSettings } from '../state.js';
+import { useManifest, useSettings } from '../state.js';
 import { cn } from '../lib/cn.js';
 import { DocContextMenu } from './DocContextMenu.js';
 import { useT } from '../i18n/index.js';
 
 const OVERRIDES_KEY = 'dokai:sidebar:folderOverrides';
+
+export interface SidebarHandle {
+  collapseAll: (collapsed: boolean) => void;
+}
 
 export interface SidebarProps {
   tree: SectionNode | null;
@@ -25,11 +29,16 @@ export interface SidebarProps {
 function useFolderOverrides(defaultCollapsed: boolean | null): {
   overrides: ReadonlyMap<string, boolean>;
   toggle: (path: string, currentlyCollapsed: boolean) => void;
+  setAll: (collapsed: boolean, allPaths: string[]) => void;
 } {
   const [overrides, setOverrides] = useState<Map<string, boolean>>(new Map());
 
   const toggle = useCallback((path: string, currentlyCollapsed: boolean) => {
     setOverrides((prev) => new Map(prev).set(path, !currentlyCollapsed));
+  }, []);
+
+  const setAll = useCallback((collapsed: boolean, allPaths: string[]) => {
+    setOverrides(() => new Map(allPaths.map((p) => [p, collapsed])));
   }, []);
 
   // Sync overrides with the settled default. `null` means settings are still loading — wait.
@@ -73,10 +82,22 @@ function useFolderOverrides(defaultCollapsed: boolean | null): {
     }
   }, [overrides, defaultCollapsed]);
 
-  return { overrides, toggle };
+  return { overrides, toggle, setAll };
 }
 
-export function Sidebar({ tree, loading, onAddInFolder }: SidebarProps) {
+function collectFolderPaths(section: SectionNode): string[] {
+  const out: string[] = [];
+  for (const child of section.sections) {
+    out.push(child.relativePath);
+    out.push(...collectFolderPaths(child));
+  }
+  return out;
+}
+
+export const Sidebar = forwardRef<SidebarHandle, SidebarProps>(function Sidebar(
+  { tree, loading, onAddInFolder },
+  ref,
+) {
   const settings = useSettings();
   const t = useT();
   const showStatus = settings.data?.user.ui.sidebarShowStatus ?? true;
@@ -84,8 +105,18 @@ export function Sidebar({ tree, loading, onAddInFolder }: SidebarProps) {
   // `null` while settings load → useFolderOverrides treats it as "not yet settled" and
   // skips the override-clear logic, so we don't wipe localStorage on every page load.
   const defaultCollapsed = settings.data ? settings.data.user.ui.sidebarFoldersCollapsed : null;
-  const { overrides, toggle } = useFolderOverrides(defaultCollapsed);
+  const { overrides, toggle, setAll } = useFolderOverrides(defaultCollapsed);
   const effectiveDefault = defaultCollapsed ?? false;
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      collapseAll: (collapsed: boolean) => {
+        if (tree) setAll(collapsed, collectFolderPaths(tree));
+      },
+    }),
+    [tree, setAll],
+  );
 
   if (loading) return <SidebarSkeleton />;
   if (!tree) {
@@ -113,7 +144,40 @@ export function Sidebar({ tree, loading, onAddInFolder }: SidebarProps) {
         onToggle={toggle}
         t={t}
       />
+      <ApiNavGroup />
     </nav>
+  );
+});
+
+function ApiNavGroup() {
+  const manifest = useManifest();
+  const t = useT();
+  const specs = manifest.data?.specs ?? [];
+  if (specs.length === 0) return null;
+
+  return (
+    <div className="mt-3">
+      <div className="dokai-sidebar-folder mt-3 mb-1 flex items-center gap-1.5 pr-1">
+        <Webhook className="dokai-sidebar-folder-icon" />
+        <span className="min-w-0 flex-1 truncate text-left">{t('sidebar.apis')}</span>
+      </div>
+      <div className="ml-2.75 border-l pl-2" style={{ borderColor: 'var(--color-border)' }}>
+        <ul className="flex flex-col gap-px">
+          {specs.map((spec) => (
+            <li key={spec.route}>
+              <NavLink to={spec.route} end className="dokai-sidebar-row">
+                {spec.hasSecurity ? (
+                  <Lock className="dokai-sidebar-row-icon" />
+                ) : (
+                  <Globe className="dokai-sidebar-row-icon" />
+                )}
+                <span className="dokai-sidebar-row-title">{spec.title}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 

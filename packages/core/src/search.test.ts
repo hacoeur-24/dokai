@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildSearchIndex, defaultSearchIndexPath, loadSearchIndex } from './search.js';
-import type { SectionNode } from './types.js';
+import type { OpenApiSpecMeta, SectionNode } from './types.js';
 
 function makeDoc(
   overrides: Partial<{
@@ -132,5 +132,37 @@ describe('buildSearchIndex', () => {
     // Section without metadata.title → last path segment is humanized.
     expect(redesign?.folderPath).toBe('architecture/v2');
     expect(redesign?.folderTitle).toBe('V2');
+  });
+});
+
+describe('buildSearchIndex with specs', () => {
+  it('adds one search document per spec', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dokai-search-specs-'));
+    const emptyTree = {
+      relativePath: '',
+      absolutePath: dir,
+      metadata: null,
+      sections: [],
+      docs: [],
+    };
+    const specs: OpenApiSpecMeta[] = [
+      {
+        relativePath: 'openapi/billing.yaml',
+        route: '/dokai/_api/billing',
+        title: 'Billing API',
+        version: '2.0.0',
+        description: 'Money moves.',
+        hasSecurity: true,
+        operationCount: 1,
+        serverHosts: ['api.example.com'],
+        operations: [{ method: 'POST', path: '/payments', summary: 'Create payment', secured: true }],
+        workspace: null,
+      },
+    ];
+    const file = await buildSearchIndex(emptyTree, join(dir, 'index.json'), { specs });
+    const doc = file.documents.find((d) => d.route === '/dokai/_api/billing');
+    expect(doc?.title).toBe('Billing API');
+    expect(doc?.body).toContain('POST /payments');
+    expect(doc?.folderTitle).toBe('APIs');
   });
 });

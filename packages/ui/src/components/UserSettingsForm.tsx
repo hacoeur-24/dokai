@@ -18,6 +18,8 @@ import { saveUserSettings } from '../lib/api.js';
 import { useRefresh } from '../state.js';
 import { useToast } from './Toast.js';
 import { useT } from '../i18n/index.js';
+import { Dropdown } from './Dropdown.js';
+import { InfoTip } from './InfoTip.js';
 
 export function UserSettingsForm({ initial }: { initial: UserSettings }) {
   const refresh = useRefresh();
@@ -83,56 +85,51 @@ export function UserSettingsForm({ initial }: { initial: UserSettings }) {
       <div className="flex-1 space-y-7 px-5 py-6">
         <Group icon={<SunMoon className="h-3.5 w-3.5" />} title={t('settings.user.theme')}>
           <Field icon={<SunMoon className="h-3.5 w-3.5" />} label={t('settings.user.themeMode')}>
-            <select
+            <Dropdown<'' | 'light' | 'dark' | 'system'>
+              fullWidth
               value={draft.theme.mode ?? ''}
-              onChange={(e) =>
+              options={[
+                { value: '', label: t('settings.user.themeFollow') },
+                { value: 'light', label: t('themeMode.light') },
+                { value: 'dark', label: t('themeMode.dark') },
+                { value: 'system', label: t('themeMode.system') },
+              ]}
+              onChange={(v) =>
                 updateNested('theme', {
-                  mode: (e.target.value || undefined) as UserSettings['theme']['mode'],
+                  mode: (v || undefined) as UserSettings['theme']['mode'],
                 })
               }
-              className="dokai-control"
-            >
-              <option value="">{t('settings.user.themeFollow')}</option>
-              <option value="light">{t('themeMode.light')}</option>
-              <option value="dark">{t('themeMode.dark')}</option>
-              <option value="system">{t('themeMode.system')}</option>
-            </select>
+            />
           </Field>
         </Group>
 
         <Group icon={<LayoutIcon className="h-3.5 w-3.5" />} title={t('settings.user.layout')}>
           <div className="grid grid-cols-2 items-end gap-3">
             <Field icon={<Type className="h-3.5 w-3.5" />} label={t('settings.user.fontSize')}>
-              <select
+              <Dropdown<UserSettings['ui']['fontSize']>
+                fullWidth
                 value={draft.ui.fontSize}
-                onChange={(e) =>
-                  updateNested('ui', {
-                    fontSize: e.target.value as UserSettings['ui']['fontSize'],
-                  })
-                }
-                className="dokai-control"
-              >
-                <option value="default">{t('settings.user.fontSizeDefault')}</option>
-                <option value="compact">{t('settings.user.fontSizeCompact')}</option>
-                <option value="large">{t('settings.user.fontSizeLarge')}</option>
-              </select>
+                options={[
+                  { value: 'default', label: t('settings.user.fontSizeDefault') },
+                  { value: 'compact', label: t('settings.user.fontSizeCompact') },
+                  { value: 'large', label: t('settings.user.fontSizeLarge') },
+                ]}
+                onChange={(v) => updateNested('ui', { fontSize: v })}
+              />
             </Field>
             {/* Replaces the old "Editor mode" dropdown — that setting is now controlled by the
                 inline switcher at the top-right of the editor pane (added in v0.2.4). The
                 Language selector takes its slot. */}
             <Field icon={<Languages className="h-3.5 w-3.5" />} label={t('settings.user.language')}>
-              <select
+              <Dropdown<UserSettings['ui']['language']>
+                fullWidth
                 value={draft.ui.language}
-                onChange={(e) =>
-                  updateNested('ui', {
-                    language: e.target.value as UserSettings['ui']['language'],
-                  })
-                }
-                className="dokai-control"
-              >
-                <option value="en">{t('language.en')} | English</option>
-                <option value="fr">{t('language.fr')} | Français</option>
-              </select>
+                options={[
+                  { value: 'en', label: `${t('language.en')} | English` },
+                  { value: 'fr', label: `${t('language.fr')} | Français` },
+                ]}
+                onChange={(v) => updateNested('ui', { language: v })}
+              />
             </Field>
           </div>
         </Group>
@@ -215,10 +212,12 @@ export function UserSettingsForm({ initial }: { initial: UserSettings }) {
 function Field({
   label,
   icon,
+  help,
   children,
 }: {
   label: string;
   icon?: ReactNode;
+  help?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -229,6 +228,7 @@ function Field({
       >
         {icon}
         {label}
+        {help && <InfoTip content={help} />}
       </span>
       {children}
     </label>

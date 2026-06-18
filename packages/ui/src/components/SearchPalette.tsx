@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Command } from 'cmdk';
 import MiniSearch from 'minisearch';
 import { useNavigate } from 'react-router-dom';
-import { Folder } from 'lucide-react';
+import { Folder, SlidersHorizontal } from 'lucide-react';
 import { fetchSearchIndex, type SearchIndexPayload } from '../lib/api.js';
 import { Tag } from './Tag.js';
+import { Dropdown, type DropdownOption } from './Dropdown.js';
 import { useT } from '../i18n/index.js';
 
 const OPTIONS = {
@@ -77,6 +78,7 @@ export function SearchPalette({
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [activeVersion, setActiveVersion] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Re-fetch the index every time the palette opens. The index is small enough that this is
   // cheap, and re-fetching guarantees that newly added tags / docs / status changes show up
@@ -127,6 +129,8 @@ export function SearchPalette({
   const t = useT();
   if (!open) return null;
 
+  const hasFilters = allTags.length > 0 || allStatuses.length > 0 || allVersions.length > 1;
+
   const toggleTag = (tag: string): void =>
     setActiveTags((cur) => (cur.includes(tag) ? cur.filter((t) => t !== tag) : [...cur, tag]));
 
@@ -141,18 +145,38 @@ export function SearchPalette({
         style={{ boxShadow: 'var(--shadow-pop)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <Command.Input
-          autoFocus
-          value={query}
-          onValueChange={setQuery}
-          placeholder={t('search.placeholder')}
-          className="w-full border-b bg-transparent px-5 py-4 text-[0.95rem] outline-none placeholder:text-fg-subtle"
-        />
+        <div className="flex items-center border-b">
+          <Command.Input
+            autoFocus
+            value={query}
+            onValueChange={setQuery}
+            placeholder={t('search.placeholder')}
+            className="min-w-0 flex-1 bg-transparent px-5 py-4 text-[0.95rem] outline-none placeholder:text-fg-subtle"
+          />
+          {hasFilters && (
+            <button
+              type="button"
+              title={t('search.filters')}
+              aria-label={t('search.filters')}
+              aria-pressed={filtersOpen}
+              onClick={() => setFiltersOpen((v) => !v)}
+              className="mr-3 flex shrink-0 items-center rounded-control p-1.5 transition-colors"
+              style={{
+                color: filtersOpen ? 'var(--color-accent)' : 'var(--color-fg-subtle)',
+                background: filtersOpen
+                  ? 'color-mix(in oklch, var(--color-accent) 12%, transparent)'
+                  : undefined,
+              }}
+            >
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
 
-        {(allTags.length > 0 || allStatuses.length > 0 || allVersions.length > 1) && (
+        {filtersOpen && hasFilters && (
           <div className="flex flex-wrap items-center gap-1.5 border-b px-3 py-2 text-xs">
             {allStatuses.length > 0 && (
-              <Filter
+              <DropdownFilter
                 label={t('search.statusLabel')}
                 allLabel={t('search.allOption')}
                 options={allStatuses}
@@ -161,12 +185,19 @@ export function SearchPalette({
               />
             )}
             {allVersions.length > 1 && (
-              <Filter
+              <DropdownFilter
                 label={t('search.versionLabel')}
                 allLabel={t('search.allOption')}
                 options={allVersions}
                 value={activeVersion}
                 onChange={setActiveVersion}
+              />
+            )}
+            {allTags.length > 0 && (allStatuses.length > 0 || allVersions.length > 1) && (
+              <span
+                aria-hidden="true"
+                className="mx-1 h-4 w-px self-center"
+                style={{ background: 'var(--color-border)' }}
               />
             )}
             {allTags.length > 0 && (
@@ -261,7 +292,7 @@ export function SearchPalette({
   );
 }
 
-function Filter({
+function DropdownFilter({
   label,
   allLabel,
   options,
@@ -274,21 +305,18 @@ function Filter({
   value: string | null;
   onChange: (v: string | null) => void;
 }) {
+  const dropdownOptions: DropdownOption<string>[] = [
+    { value: '', label: allLabel },
+    ...options.map((o) => ({ value: o, label: o })),
+  ];
   return (
     <label className="flex items-center gap-1.5">
       <span className="dokai-eyebrow text-[0.65rem]">{label}</span>
-      <select
+      <Dropdown
         value={value ?? ''}
-        onChange={(e) => onChange(e.target.value || null)}
-        className="rounded-control border bg-bg px-1.5 py-0.5 text-[0.7rem]"
-      >
-        <option value="">{allLabel}</option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
+        options={dropdownOptions}
+        onChange={(v) => onChange(v || null)}
+      />
     </label>
   );
 }

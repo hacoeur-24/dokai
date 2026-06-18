@@ -72,3 +72,36 @@ export interface RepoInfo {
   workspaces: WorkspaceEntry[];
   turbo: TurboInfo | null;
 }
+
+export interface OpenApiOperationMeta {
+  /** Upper-case HTTP method, e.g. "GET". */
+  method: string;
+  /** Templated path, e.g. "/payments/{id}". */
+  path: string;
+  /** Operation summary, or "" if absent. */
+  summary: string;
+  /** True when the operation requires auth after resolving op-level over global security. */
+  secured: boolean;
+}
+
+export interface OpenApiSpecMeta {
+  /** Posix path relative to DOKAI/, e.g. "openapi/billing/payments.yaml". */
+  relativePath: string;
+  /** In-app route, e.g. "/dokai/_api/billing/payments". */
+  route: string;
+  title: string;
+  version: string;
+  description: string;
+  /** True when any operation is secured. Drives the sidebar lock icon. */
+  hasSecurity: boolean;
+  operationCount: number;
+  /** Hostnames parsed from servers[].url (or swagger 2.0 `host`). Feed the proxy allowlist. */
+  serverHosts: string[];
+  operations: OpenApiOperationMeta[];
+  workspace: string | null;
+}
+
+export interface OpenApiScanError {
+  relativePath: string;
+  message: string;
+}

@@ -8,6 +8,7 @@ export * from './schemas/frontmatter.js';
 export * from './schemas/section.js';
 export * from './schemas/project-settings.js';
 export * from './schemas/user-settings.js';
+export * from './schemas/openapi.js';
 export * from './route.js';
 export * from './slug.js';
 export * from './types.js';

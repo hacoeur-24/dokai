@@ -1,5 +1,6 @@
 {
   "common.save": "Enregistrer",
+  "common.moreInfo": "Plus d'informations",
   "common.saving": "Enregistrement…",
   "common.saved": "Enregistré",
   "common.cancel": "Annuler",
@@ -33,8 +34,15 @@
   "sidebar.collapse": "Réduire la barre latérale",
   "sidebar.expandShortcut": "Développer la barre latérale (⌘B)",
   "sidebar.collapseShortcut": "Réduire la barre latérale (⌘B)",
+  "sidebar.collapseAll": "Tout réduire",
+  "sidebar.expandAll": "Tout développer",
+  "sidebar.apis": "API",
+
+  "header.github": "GitHub",
+  "header.application": "Application",
 
   "layout.newDoc": "Nouveau document",
+  "layout.createNew": "Créer nouveau",
   "layout.search": "Rechercher…",
   "layout.searchShortcut": "Rechercher (⌘K)",
   "layout.settings": "Paramètres",
@@ -55,6 +63,17 @@
   "doc.pdfDownloaded": "PDF téléchargé",
   "doc.pdfFailed": "Échec du téléchargement PDF : {error}",
   "doc.downloadFailed": "Échec du téléchargement : {error}",
+
+  "diagram.title": "Diagramme",
+  "diagram.copySource": "Copier la source",
+  "diagram.copied": "Copié !",
+  "diagram.downloadSvg": "SVG",
+  "diagram.downloadPng": "PNG",
+  "diagram.close": "Fermer",
+  "diagram.closeEsc": "Fermer (Échap)",
+  "diagram.zoomIn": "Zoom avant",
+  "diagram.zoomOut": "Zoom arrière",
+  "diagram.fit": "Ajuster",
 
   "context.open": "Ouvrir",
   "context.edit": "Modifier",
@@ -94,6 +113,7 @@
   "search.placeholder": "Rechercher dans toute la documentation…",
   "search.noResults": "Aucun résultat pour « {query} ».",
   "search.empty": "Tapez pour rechercher par titre, en-têtes, étiquettes ou contenu.",
+  "search.filters": "Filtres",
   "search.statusLabel": "statut",
   "search.versionLabel": "version",
   "search.allOption": "tous",
@@ -114,6 +134,10 @@
   "settings.project.downloads": "Téléchargements",
   "settings.project.defaultFormat": "Format par défaut",
   "settings.project.defaultFormatHint": "Utilisé par l'action Télécharger du clic droit et comme option mise en évidence dans le menu Télécharger du document.",
+  "settings.project.githubUrl": "URL GitHub",
+  "settings.project.githubUrlHint": "Lien affiché dans l'en-tête. URL complète de votre dépôt.",
+  "settings.project.appUrl": "URL de l'application",
+  "settings.project.appUrlHint": "Lien affiché dans l'en-tête. URL complète de votre application.",
   "settings.project.saved": "Paramètres du projet enregistrés",
   "settings.project.saveFailed": "Impossible d'enregistrer les paramètres du projet : {error}",
 
@@ -158,5 +182,16 @@
   "create.placeholder": "Sans titre",
   "create.descriptionPlaceholder": "Description en une ligne (facultatif)",
   "create.confirm": "Créer",
-  "create.created": "Document créé"
+  "create.created": "Document créé",
+  "create.kindDocument": "Document",
+  "create.kindFolder": "Dossier",
+  "create.location": "Emplacement",
+  "create.locationRoot": "Racine",
+  "create.folderName": "Nom du dossier",
+  "create.titleFolder": "Créer un dossier",
+  "create.docNamePlaceholder": "Points de terminaison API",
+  "create.folderPlaceholder": "mon-dossier",
+  "create.pathPreview": "Créera",
+
+  "openapi.specNotFound": "Aucune spécification d'API trouvée pour {route}."
 }
