@@ -720,6 +720,31 @@ milkdown-block-handle {
   transform: scale(0.94);
 }
 
+/* ----- App header external links -----
+   Used for GitHub / Application links in the top header. Inline-flex pill with icon + text,
+   token-based so it adapts to light/dark automatically. */
+.dokai-header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.dokai-header-link:hover {
+  background: var(--color-bg-muted);
+  border-color: var(--color-border);
+  color: var(--color-fg);
+}
+
 /* ----- Context menu (Radix) -----
    Used for the right-click panel on sidebar document rows. Same visual language as the
    command palette + create dialog. */

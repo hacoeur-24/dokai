@@ -34,6 +34,9 @@
   "sidebar.expandShortcut": "Développer la barre latérale (⌘B)",
   "sidebar.collapseShortcut": "Réduire la barre latérale (⌘B)",
 
+  "header.github": "GitHub",
+  "header.application": "Application",
+
   "layout.newDoc": "Nouveau document",
   "layout.search": "Rechercher…",
   "layout.searchShortcut": "Rechercher (⌘K)",
