@@ -20,7 +20,6 @@ export function InfoTip({ content, label = 'More information' }: InfoTipProps) {
         type="button"
         className="dokai-infotip__trigger"
         aria-label={label}
-        tabIndex={0}
       >
         <Info className="h-3.5 w-3.5" aria-hidden="true" />
       </button>

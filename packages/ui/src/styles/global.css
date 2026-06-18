@@ -904,8 +904,8 @@ milkdown-block-handle {
   opacity: 0;
   transition: opacity 120ms ease;
 }
-.dokai-infotip__trigger:hover ~ .dokai-infotip__bubble,
-.dokai-infotip__trigger:focus-visible ~ .dokai-infotip__bubble {
+.dokai-infotip:has(.dokai-infotip__trigger:hover) .dokai-infotip__bubble,
+.dokai-infotip:has(.dokai-infotip__trigger:focus-visible) .dokai-infotip__bubble {
   opacity: 1;
   pointer-events: auto;
 }
@@ -936,7 +936,7 @@ milkdown-block-handle {
   color: var(--color-fg-muted);
   transition: transform 200ms ease;
 }
-[data-state='open'] .dokai-select-trigger__chevron {
+.dokai-select-trigger[data-state='open'] .dokai-select-trigger__chevron {
   transform: rotate(180deg);
 }
 

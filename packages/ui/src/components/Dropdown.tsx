@@ -17,6 +17,8 @@ export interface DropdownProps<T extends string> {
   disabled?: boolean;
   /** Additional class names applied to the trigger button. */
   className?: string;
+  /** Span the container width (use when replacing a full-width <select>). */
+  fullWidth?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export function Dropdown<T extends string>({
   placeholder,
   disabled = false,
   className,
+  fullWidth = false,
 }: DropdownProps<T>) {
   const selected = options.find((o) => o.value === value);
   const label = selected?.label ?? placeholder ?? value;
@@ -42,6 +45,7 @@ export function Dropdown<T extends string>({
           type="button"
           disabled={disabled}
           className={['dokai-control', 'dokai-select-trigger', className].filter(Boolean).join(' ')}
+          style={fullWidth ? { width: '100%' } : undefined}
         >
           {icon != null && <span className="dokai-select-trigger__icon">{icon}</span>}
           <span className="dokai-select-trigger__label">{label}</span>
