@@ -41,6 +41,7 @@ describe('buildScalarConfig', () => {
     expect(cfg['hideSearch']).toBe(true);
     expect(cfg['showDeveloperTools']).toBe('never');
     expect(cfg['hideDarkModeToggle']).toBe(true);
+    expect(cfg['hideClientButton']).toBe(true);
     const sources = cfg['sources'] as Array<{ url: string; agent: { disabled: boolean } }>;
     expect(sources[0]?.url).toBe('/x');
     expect(sources[0]?.agent.disabled).toBe(true);

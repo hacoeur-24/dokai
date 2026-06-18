@@ -38,6 +38,7 @@ export function buildScalarConfig(input: ScalarConfigInput): Record<string, unkn
     hideSearch: true, // DOKAI's header search (Cmd+K) is the only search
     showDeveloperTools: 'never', // no "Deploy" / Scalar Pro CTAs
     hideDarkModeToggle: true, // DOKAI owns theming via data-theme + tokens
+    hideClientButton: true, // no "Open API Client" launcher (links out to Scalar)
   };
   if (input.tryItOut) {
     config['proxyUrl'] = '/api/openapi/proxy';

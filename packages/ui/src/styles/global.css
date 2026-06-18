@@ -1004,3 +1004,11 @@ milkdown-block-handle {
     page-break-inside: avoid;
   }
 }
+
+/* Scalar's "Test Request" / API-client panel is a position:fixed overlay teleported to <body>
+ * (left:0; width:100%) with no z-index of its own, so it renders behind DOKAI's chrome. Lift the
+ * open panel above everything (DOKAI's highest z-index is 1000) so it's a clean full-screen overlay
+ * while open; it disappears on close and the sidebar/content return automatically. */
+.scalar-container.scalar-client--open {
+  z-index: 10000;
+}
