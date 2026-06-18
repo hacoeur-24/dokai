@@ -49,6 +49,12 @@ export function Layout() {
     if (settings.data) setCollapsed(settings.data.user.ui.sidebarCollapsed);
   }, [settings.data]);
 
+  useEffect(() => {
+    if (settings.data) {
+      setAllCollapsed(settings.data.user.ui.sidebarFoldersCollapsed);
+    }
+  }, [settings.data]);
+
   const autoCollapse = settings.data?.user.ui.sidebarAutoCollapse ?? false;
 
   const setCollapsedAndPersist = (next: boolean): void => {
