@@ -176,7 +176,7 @@ export function SearchPalette({
         {filtersOpen && hasFilters && (
           <div className="flex flex-wrap items-center gap-1.5 border-b px-3 py-2 text-xs">
             {allStatuses.length > 0 && (
-              <StatusFilter
+              <DropdownFilter
                 label={t('search.statusLabel')}
                 allLabel={t('search.allOption')}
                 options={allStatuses}
@@ -185,7 +185,7 @@ export function SearchPalette({
               />
             )}
             {allVersions.length > 1 && (
-              <Filter
+              <DropdownFilter
                 label={t('search.versionLabel')}
                 allLabel={t('search.allOption')}
                 options={allVersions}
@@ -285,7 +285,7 @@ export function SearchPalette({
   );
 }
 
-function StatusFilter({
+function DropdownFilter({
   label,
   allLabel,
   options,
@@ -310,38 +310,6 @@ function StatusFilter({
         options={dropdownOptions}
         onChange={(v) => onChange(v || null)}
       />
-    </label>
-  );
-}
-
-function Filter({
-  label,
-  allLabel,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  allLabel: string;
-  options: string[];
-  value: string | null;
-  onChange: (v: string | null) => void;
-}) {
-  return (
-    <label className="flex items-center gap-1.5">
-      <span className="dokai-eyebrow text-[0.65rem]">{label}</span>
-      <select
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value || null)}
-        className="rounded-control border bg-bg px-1.5 py-0.5 text-[0.7rem]"
-      >
-        <option value="">{allLabel}</option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
     </label>
   );
 }
