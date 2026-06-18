@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { OpenApiSpecMeta } from 'dokai-core';
-import { buildScalarConfig, findSpecByRoute, rawSpecUrl } from './openapi.js';
+import { buildScalarConfig, findSpecByRoute, rawSpecUrl, scalarThemeForMode } from './openapi.js';
 
 const spec: OpenApiSpecMeta = {
   relativePath: 'openapi/billing/payments.yaml',
@@ -25,26 +25,40 @@ describe('rawSpecUrl', () => {
 
 describe('buildScalarConfig', () => {
   it('uses the proxy when try-it-out is available', () => {
-    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true });
+    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true, mode: 'dark' });
     expect(cfg['proxyUrl']).toBe('/api/openapi/proxy');
     expect(cfg['hideTestRequestButton']).toBeUndefined();
     expect(cfg['persistAuth']).toBe(true);
   });
   it('hides the Send button in read-only mode', () => {
-    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: false, persistAuth: false });
+    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: false, persistAuth: false, mode: 'light' });
     expect(cfg['proxyUrl']).toBeUndefined();
     expect(cfg['hideTestRequestButton']).toBe(true);
   });
-  it('strips Scalar chrome (sidebar, search, dev tools, dark-mode toggle, Ask AI) and keeps the theme', () => {
-    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true });
+  it('strips Scalar chrome (sidebar, search, dev tools, dark-mode toggle, Ask AI)', () => {
+    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true, mode: 'dark' });
     expect(cfg['showSidebar']).toBe(false);
     expect(cfg['hideSearch']).toBe(true);
     expect(cfg['showDeveloperTools']).toBe('never');
     expect(cfg['hideDarkModeToggle']).toBe(true);
-    expect(cfg['theme']).toBe('none');
     const sources = cfg['sources'] as Array<{ url: string; agent: { disabled: boolean } }>;
     expect(sources[0]?.url).toBe('/x');
     expect(sources[0]?.agent.disabled).toBe(true);
+  });
+  it('uses Purple in dark mode and Blue Planet in light mode (forcing Scalar light/dark)', () => {
+    const dark = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true, mode: 'dark' });
+    expect(dark['theme']).toBe('purple');
+    expect(dark['forceDarkModeState']).toBe('dark');
+    const light = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true, mode: 'light' });
+    expect(light['theme']).toBe('bluePlanet');
+    expect(light['forceDarkModeState']).toBe('light');
+  });
+});
+
+describe('scalarThemeForMode', () => {
+  it('maps dark -> purple and light -> bluePlanet', () => {
+    expect(scalarThemeForMode('dark')).toEqual({ theme: 'purple', forceDarkModeState: 'dark' });
+    expect(scalarThemeForMode('light')).toEqual({ theme: 'bluePlanet', forceDarkModeState: 'light' });
   });
 });
 

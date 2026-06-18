@@ -62,6 +62,31 @@ function fontScale(size: UserSettings['ui']['fontSize']): number {
   }
 }
 
+function readResolvedTheme(): 'light' | 'dark' {
+  return typeof document !== 'undefined' && document.documentElement.dataset['theme'] === 'dark'
+    ? 'dark'
+    : 'light';
+}
+
+/**
+ * Reactive hook returning the current resolved theme ('light' | 'dark') by observing the
+ * `data-theme` attribute on <html> — the single source of truth that `applyTheme` /
+ * `useThemeApply` keep in sync for both settings changes and 'system' (OS) preference flips.
+ */
+export function useResolvedTheme(): 'light' | 'dark' {
+  const [mode, setMode] = useState<'light' | 'dark'>(readResolvedTheme);
+  useEffect(() => {
+    setMode(readResolvedTheme());
+    const observer = new MutationObserver(() => setMode(readResolvedTheme()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+    return () => observer.disconnect();
+  }, []);
+  return mode;
+}
+
 /** Reactive hook that re-applies theme when system preference flips while in 'system' mode. */
 export function useThemeApply(project: ProjectSettings | null, user: UserSettings | null): void {
   const [, force] = useState(0);

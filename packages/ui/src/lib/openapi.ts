@@ -9,6 +9,18 @@ export interface ScalarConfigInput {
   rawUrl: string;
   tryItOut: boolean;
   persistAuth: boolean;
+  /** DOKAI's resolved theme; drives Scalar's named theme + forced light/dark state. */
+  mode: 'light' | 'dark';
+}
+
+/** Map DOKAI's resolved theme to Scalar's named theme + forced light/dark state:
+ *  Blue Planet in light mode, Purple in dark mode. `forceDarkModeState` locks Scalar's
+ *  light/dark to DOKAI's (its own toggle is hidden via `hideDarkModeToggle`). */
+export function scalarThemeForMode(mode: 'light' | 'dark'): {
+  theme: 'purple' | 'bluePlanet';
+  forceDarkModeState: 'light' | 'dark';
+} {
+  return { theme: mode === 'dark' ? 'purple' : 'bluePlanet', forceDarkModeState: mode };
 }
 
 /** Scalar configuration: proxy + try-it-out in dev; read-only (Send hidden) otherwise. */
@@ -19,8 +31,8 @@ export function buildScalarConfig(input: ScalarConfigInput): Record<string, unkn
     // spec via `sources` rather than a top-level `url`.
     sources: [{ url: input.rawUrl, agent: { disabled: true } }],
     persistAuth: input.persistAuth,
-    // Let DOKAI's CSS variables drive colors instead of a baked Scalar theme.
-    theme: 'none',
+    // Scalar's named theme + forced light/dark, following DOKAI's resolved theme.
+    ...scalarThemeForMode(input.mode),
     // Strip Scalar's own chrome so it embeds cleanly inside DOKAI's shell:
     showSidebar: false, // DOKAI's "APIs" sidebar group handles navigation
     hideSearch: true, // DOKAI's header search (Cmd+K) is the only search
