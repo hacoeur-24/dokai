@@ -36,9 +36,9 @@ function hostsFromServers(doc: Json): string[] {
       const url = server?.['url'];
       if (typeof url === 'string') {
         try {
-          hosts.add(new URL(url, 'http://localhost').hostname);
+          hosts.add(new URL(url).hostname);
         } catch {
-          /* templated/relative url that won't parse — skip */
+          // Relative or unparseable server URL — no external host to record.
         }
       }
     }

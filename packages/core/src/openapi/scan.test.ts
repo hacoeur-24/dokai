@@ -36,11 +36,25 @@ const PUBLIC_JSON = JSON.stringify({
   paths: { '/ping': { get: { summary: 'Ping', responses: { '200': { description: 'ok' } } } } },
 });
 
+const RELATIVE_SERVER_SPEC = `openapi: 3.1.0
+info:
+  title: Relative Server API
+  version: 1.0.0
+servers:
+  - url: /v1
+paths:
+  /items:
+    get:
+      summary: List items
+      responses: { '200': { description: ok } }
+`;
+
 beforeAll(async () => {
   dokaiRoot = await mkdtemp(join(tmpdir(), 'dokai-openapi-'));
   await mkdir(join(dokaiRoot, 'openapi', 'billing'), { recursive: true });
   await writeFile(join(dokaiRoot, 'openapi', 'billing', 'payments.yaml'), SECURED_SPEC);
   await writeFile(join(dokaiRoot, 'openapi', 'public.json'), PUBLIC_JSON);
+  await writeFile(join(dokaiRoot, 'openapi', 'relative-server.yaml'), RELATIVE_SERVER_SPEC);
   await writeFile(join(dokaiRoot, 'openapi', 'notes.yaml'), 'just: some\nrandom: yaml\n');
 });
 
@@ -72,6 +86,13 @@ describe('scanOpenApiSpecs', () => {
     const { specs, errors } = await scanOpenApiSpecs({ dokaiRoot });
     expect(specs.some((s) => s.relativePath === 'openapi/notes.yaml')).toBe(false);
     expect(errors.some((e) => e.relativePath === 'openapi/notes.yaml')).toBe(true);
+  });
+
+  it('does not fabricate a host for a relative server URL', async () => {
+    const { specs } = await scanOpenApiSpecs({ dokaiRoot });
+    const rel = specs.find((s) => s.relativePath === 'openapi/relative-server.yaml');
+    expect(rel).toBeDefined();
+    expect(rel?.serverHosts).toEqual([]);
   });
 
   it('returns empty results when the dir is absent', async () => {
