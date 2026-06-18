@@ -5,6 +5,7 @@ import {
   isHostAllowed,
   parseTargetUrl,
   readRawBody,
+  resolveRedirectTarget,
 } from './openapi-proxy.js';
 
 describe('parseTargetUrl', () => {
@@ -65,5 +66,47 @@ describe('readRawBody', () => {
   });
   it('throws past the cap', async () => {
     await expect(readRawBody(gen(['abcdef']) as AsyncIterable<Buffer>, 3)).rejects.toThrow(/too large/i);
+  });
+});
+
+describe('resolveRedirectTarget', () => {
+  const allowed = buildAllowedHosts({ settingsHosts: ['api.example.com'], specHosts: ['svc.local'] });
+
+  it('resolves a relative Location against currentUrl and returns the absolute URL when host is allowed', () => {
+    const result = resolveRedirectTarget('/v2/endpoint', 'https://api.example.com/v1/foo', allowed);
+    expect(result).not.toBeNull();
+    expect(result?.href).toBe('https://api.example.com/v2/endpoint');
+  });
+
+  it('returns null when the Location host is not in the allowlist', () => {
+    const result = resolveRedirectTarget(
+      'https://evil.example.org/steal',
+      'https://api.example.com/v1/foo',
+      allowed,
+    );
+    expect(result).toBeNull();
+  });
+
+  it('returns null for the cloud metadata IP even mid-redirect', () => {
+    const result = resolveRedirectTarget(
+      'http://169.254.169.254/latest/meta-data/',
+      'https://api.example.com/v1/foo',
+      allowed,
+    );
+    expect(result).toBeNull();
+  });
+
+  it('returns null when Location is null', () => {
+    const result = resolveRedirectTarget(null, 'https://api.example.com/v1/foo', allowed);
+    expect(result).toBeNull();
+  });
+
+  it('returns null for a non-http(s) Location', () => {
+    const result = resolveRedirectTarget(
+      'file:///etc/passwd',
+      'https://api.example.com/v1/foo',
+      allowed,
+    );
+    expect(result).toBeNull();
   });
 });

@@ -44,6 +44,25 @@ export function isHostAllowed(host: string, allowed: ReadonlySet<string>): boole
   return allowed.has(h);
 }
 
+/** Resolve a redirect Location against the current URL and re-validate it against the allowlist.
+ *  Returns the validated absolute target, or null if the Location is missing/invalid/disallowed. */
+export function resolveRedirectTarget(
+  location: string | null,
+  currentUrl: string,
+  allowed: ReadonlySet<string>,
+): URL | null {
+  if (!location) return null;
+  let next: URL;
+  try {
+    next = new URL(location, currentUrl);
+  } catch {
+    return null;
+  }
+  if (next.protocol !== 'http:' && next.protocol !== 'https:') return null;
+  if (!isHostAllowed(next.hostname, allowed)) return null;
+  return next;
+}
+
 export function filterForwardHeaders(headers: IncomingHttpHeaders): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [key, value] of Object.entries(headers)) {

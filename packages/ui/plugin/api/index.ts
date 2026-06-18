@@ -29,6 +29,7 @@ import {
   isHostAllowed,
   parseTargetUrl,
   readRawBody,
+  resolveRedirectTarget,
 } from './openapi-proxy.js';
 
 export interface DokaiApiOptions {
@@ -305,12 +306,47 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
       const method = (req.method ?? 'GET').toUpperCase();
       const hasBody = method !== 'GET' && method !== 'HEAD';
       const body = hasBody ? await readRawBody(req, 10 * 1024 * 1024) : undefined;
+      const forwardedHeaders = filterForwardHeaders(req.headers);
 
-      const upstream = await fetch(target, {
-        method,
-        headers: filterForwardHeaders(req.headers),
-        body,
-      });
+      const MAX_REDIRECTS = 5;
+      let currentUrl = target.toString();
+      let currentMethod = method;
+      let currentBody: Buffer | undefined = body;
+      let upstream: Response | null = null;
+
+      for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+        if (hop === MAX_REDIRECTS) {
+          return sendError(res, 502, 'Too many redirects');
+        }
+        // eslint-disable-next-line no-await-in-loop
+        const response = await fetch(currentUrl, {
+          method: currentMethod,
+          headers: forwardedHeaders,
+          body: currentBody,
+          redirect: 'manual',
+        });
+        const status = response.status;
+        if (status >= 300 && status < 400) {
+          const location = response.headers.get('location');
+          const next = resolveRedirectTarget(location, currentUrl, allowed);
+          if (!next) {
+            return sendError(res, 403, 'Redirect to a disallowed host was blocked');
+          }
+          currentUrl = next.toString();
+          // 307/308: preserve method + body; 301/302/303: switch to GET, drop body
+          if (status === 307 || status === 308) {
+            // keep currentMethod and currentBody
+          } else {
+            currentMethod = 'GET';
+            currentBody = undefined;
+          }
+          continue;
+        }
+        upstream = response;
+        break;
+      }
+
+      if (!upstream) return sendError(res, 502, 'Too many redirects');
       const buf = Buffer.from(await upstream.arrayBuffer());
       res.statusCode = upstream.status;
       const ct = upstream.headers.get('content-type');
