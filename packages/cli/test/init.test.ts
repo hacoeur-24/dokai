@@ -77,15 +77,29 @@ describe('runInit (normal repo)', () => {
     expect(gitignore).toContain('DOKAI/user-settings.local.json');
     expect(gitignore).toContain('DOKAI/.dokai/cache/');
 
+    // Claude Code assets (sub-agent, slash commands, split skills).
+    expect(existsSync(join(root, '.claude', 'agents', 'dokai.md'))).toBe(true);
     expect(existsSync(join(root, '.claude', 'commands', 'set-documentation.md'))).toBe(true);
     expect(existsSync(join(root, '.claude', 'commands', 'update-documentation.md'))).toBe(true);
-    expect(existsSync(join(root, '.claude', 'skills', 'dokai', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(root, '.claude', 'skills', 'dokai-docs', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(root, '.claude', 'skills', 'dokai-api', 'SKILL.md'))).toBe(true);
+    // Legacy single skill must not be present.
+    expect(existsSync(join(root, '.claude', 'skills', 'dokai', 'SKILL.md'))).toBe(false);
 
     // Agent-agnostic assets for non-Claude agents (Gemini, Codex, etc.).
-    expect(existsSync(join(root, '.agents', 'skills', 'dokai', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(root, '.agents', 'skills', 'dokai-docs', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(root, '.agents', 'skills', 'dokai-api', 'SKILL.md'))).toBe(true);
+    // Legacy single agent skill must not be present.
+    expect(existsSync(join(root, '.agents', 'skills', 'dokai', 'SKILL.md'))).toBe(false);
+
     const agentsMd = await readFile(join(root, 'AGENTS.md'), 'utf8');
     expect(agentsMd).toContain('<!-- dokai:start -->');
-    expect(agentsMd).toContain('.agents/skills/dokai/SKILL.md');
+    expect(agentsMd).toContain('.agents/skills/dokai-docs');
+
+    // CLAUDE.md managed block (Claude-optimized context).
+    const claudeMd = await readFile(join(root, 'CLAUDE.md'), 'utf8');
+    expect(claudeMd).toContain('<!-- dokai:start -->');
+    expect(claudeMd).toContain('/set-documentation');
   });
 
   it('is idempotent — re-running does not duplicate or overwrite', async () => {
@@ -109,6 +123,10 @@ describe('runInit (normal repo)', () => {
     // The AGENTS.md managed block is not duplicated on re-run.
     const agentsMd = await readFile(join(root, 'AGENTS.md'), 'utf8');
     expect(agentsMd.match(/<!-- dokai:start -->/g)).toHaveLength(1);
+
+    // The CLAUDE.md managed block is not duplicated on re-run.
+    const claudeMd = await readFile(join(root, 'CLAUDE.md'), 'utf8');
+    expect(claudeMd.match(/<!-- dokai:start -->/g)).toHaveLength(1);
   });
 });
 
