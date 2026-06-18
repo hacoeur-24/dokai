@@ -100,6 +100,7 @@
   "search.placeholder": "Rechercher dans toute la documentation…",
   "search.noResults": "Aucun résultat pour « {query} ».",
   "search.empty": "Tapez pour rechercher par titre, en-têtes, étiquettes ou contenu.",
+  "search.filters": "Filtres",
   "search.statusLabel": "statut",
   "search.versionLabel": "version",
   "search.allOption": "tous",

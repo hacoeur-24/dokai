@@ -100,6 +100,7 @@
   "search.placeholder": "Search across all documentation…",
   "search.noResults": "No results for \"{query}\".",
   "search.empty": "Type to search by title, headings, tags, or body content.",
+  "search.filters": "Filters",
   "search.statusLabel": "status",
   "search.versionLabel": "version",
   "search.allOption": "all",
