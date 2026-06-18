@@ -1,0 +1,7 @@
+{
+  "title": "APIs",
+  "description": "OpenAPI specifications, explorable and testable from the DOKAI UI.",
+  "tags": ["api"],
+  "order": 50,
+  "icon": "webhook"
+}
