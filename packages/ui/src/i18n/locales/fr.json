@@ -170,5 +170,8 @@
   "create.location": "Emplacement",
   "create.locationRoot": "Racine",
   "create.folderName": "Nom du dossier",
-  "create.titleFolder": "Créer un dossier"
+  "create.titleFolder": "Créer un dossier",
+  "create.docNamePlaceholder": "Points de terminaison API",
+  "create.folderPlaceholder": "mon-dossier",
+  "create.pathPreview": "Créera"
 }

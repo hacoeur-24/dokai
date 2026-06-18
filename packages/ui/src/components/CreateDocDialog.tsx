@@ -148,7 +148,7 @@ export function CreateDocDialog({
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={kind === 'folder' ? 'my-folder' : 'API endpoints'}
+              placeholder={kind === 'folder' ? t('create.folderPlaceholder') : t('create.docNamePlaceholder')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -161,7 +161,7 @@ export function CreateDocDialog({
 
           {title.trim() && kind === 'document' && (
             <p className="text-[0.72rem]" style={{ color: 'var(--color-fg-subtle)' }}>
-              Will create{' '}
+              {t('create.pathPreview')}{' '}
               <span className="font-mono">
                 DOKAI/{location ? `${location}/` : ''}
                 {slugify(title)}.md
@@ -170,7 +170,7 @@ export function CreateDocDialog({
           )}
           {title.trim() && kind === 'folder' && (
             <p className="text-[0.72rem]" style={{ color: 'var(--color-fg-subtle)' }}>
-              Will create{' '}
+              {t('create.pathPreview')}{' '}
               <span className="font-mono">
                 DOKAI/{location ? `${location}/` : ''}
                 {slugify(title)}/

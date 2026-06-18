@@ -170,5 +170,8 @@
   "create.location": "Location",
   "create.locationRoot": "Root",
   "create.folderName": "Folder name",
-  "create.titleFolder": "Create folder"
+  "create.titleFolder": "Create folder",
+  "create.docNamePlaceholder": "API endpoints",
+  "create.folderPlaceholder": "my-folder",
+  "create.pathPreview": "Will create"
 }
