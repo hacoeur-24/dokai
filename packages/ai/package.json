@@ -1,6 +1,6 @@
 {
   "name": "dokai-ai",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": false,
   "description": "Coding-agent assets for DOKAI: Claude Code commands, the agent-agnostic dokai skill, and the AGENTS.md helper used by the CLI.",
   "type": "module",

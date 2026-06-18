@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.1.0 — 2026-06-17
+
+- OpenAPI explorer: drop OpenAPI/Swagger specs into `DOKAI/openapi/` and DOKAI renders each as an
+  interactive reference (powered by Scalar), grouped under a new "APIs" sidebar section with a lock
+  icon on specs that have secured operations.
+- Try-it-out: run requests live from the UI in `pnpm dokai` via a local CORS-proof proxy that works
+  against any backend (including `localhost`); hosts are limited to spec `servers` + loopback +
+  `settings.openapi.allowedHosts`. The static `dokai build` export renders specs read-only.
+- Specs are indexed in search (one entry per spec). New optional `openapi` block in
+  `DOKAI/settings.json` (`enabled`, `dir`, `allowedHosts`, `persistAuth`).
+
 ## v1.0.1 — 2026-06-17
 
 - `dev` is now the default command — bare `dokai` (and `npx dokai-kit` / `pnpm exec dokai` / a
