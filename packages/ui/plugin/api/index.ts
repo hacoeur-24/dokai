@@ -214,7 +214,7 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     '/api/folder',
     wrap(async (req, res) => {
       if (!writesEnabled) return sendError(res, 405, 'Writes disabled in static build');
-      const method = (req.method ?? 'POST').toUpperCase();
+      const method = (req.method ?? '').toUpperCase();
       if (method !== 'POST') return sendError(res, 405, `Method ${method} not allowed`);
       const url = new URL(req.url ?? '/', 'http://x');
       const folderPath = url.searchParams.get('path');
