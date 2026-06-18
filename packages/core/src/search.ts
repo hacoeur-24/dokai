@@ -1,7 +1,7 @@
 import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import MiniSearch, { type Options as MiniSearchOptions } from 'minisearch';
-import type { DocNode, SectionNode } from './types.js';
+import type { DocNode, OpenApiSpecMeta, SectionNode } from './types.js';
 
 export interface SearchDocument {
   /** Stable id used by MiniSearch. We use the route. */
@@ -57,12 +57,30 @@ const SEARCH_OPTIONS: MiniSearchOptions<SearchDocument> = {
   },
 };
 
+function specToSearchDocument(spec: OpenApiSpecMeta): SearchDocument {
+  return {
+    id: spec.route,
+    title: spec.title,
+    description: spec.description,
+    tags: ['api'],
+    version: spec.version,
+    package: spec.workspace,
+    route: spec.route,
+    folderPath: 'openapi',
+    folderTitle: 'APIs',
+    headings: spec.operations.map((o) => `${o.method} ${o.path}`).join('\n'),
+    body: spec.operations.map((o) => `${o.method} ${o.path} ${o.summary}`.trim()).join('\n'),
+  };
+}
+
 /** Build a search index from a scanned section tree and write it to disk. */
 export async function buildSearchIndex(
   sectionTree: SectionNode,
   outputPath: string,
+  options: { specs?: OpenApiSpecMeta[] } = {},
 ): Promise<SearchIndexFile> {
   const documents = collectDocuments(sectionTree);
+  for (const spec of options.specs ?? []) documents.push(specToSearchDocument(spec));
   const tags = new Set<string>();
   const statuses = new Set<string>();
   for (const doc of documents) {
