@@ -17,10 +17,12 @@ import {
   saveProjectSettings,
   saveUserSettings,
   scanDokai,
+  scanOpenApiSpecs,
   userSettingsSchema,
   type DocNode,
   type SectionNode,
 } from 'dokai-core/node';
+import { resolveSpecContentType } from './openapi-raw.js';
 
 export interface DokaiApiOptions {
   server: ViteDevServer;
@@ -40,7 +42,16 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     '/api/manifest',
     wrap(async (_req, res) => {
       const tree = await scanDokai({ dokaiRoot });
-      sendJson(res, { tree, docs: collectDocSummaries(tree) });
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = loaded.project.openapi.enabled
+        ? await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir })
+        : { specs: [] };
+      sendJson(res, {
+        tree,
+        docs: collectDocSummaries(tree),
+        specs,
+        capabilities: { tryItOut: mode === 'dev' },
+      });
     }),
   );
 
@@ -83,6 +94,22 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
       const filename = relativePath.split('/').pop() ?? 'document.md';
       res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'no-cache');
+      createReadStream(target).pipe(res);
+    }),
+  );
+
+  server.middlewares.use(
+    '/api/openapi/raw',
+    wrap(async (req, res) => {
+      const url = new URL(req.url ?? '/', 'http://x');
+      const rel = url.searchParams.get('path');
+      if (!rel) return sendError(res, 400, 'Missing ?path=');
+      const contentType = resolveSpecContentType(rel);
+      if (!contentType) return sendError(res, 400, 'Spec path must be .yaml/.yml/.json');
+      const target = resolveSafePath(dokaiRoot, rel);
+      if (!target || !existsSync(target)) return sendError(res, 404, `No spec at "${rel}"`);
+      res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-cache');
       createReadStream(target).pipe(res);
     }),
@@ -229,7 +256,11 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     '/api/search-index',
     wrap(async (_req, res) => {
       const tree = await scanDokai({ dokaiRoot });
-      const file = await buildSearchIndex(tree, defaultSearchIndexPath(dokaiRoot));
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = loaded.project.openapi.enabled
+        ? await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir })
+        : { specs: [] };
+      const file = await buildSearchIndex(tree, defaultSearchIndexPath(dokaiRoot), { specs });
       sendJson(res, file);
     }),
   );
