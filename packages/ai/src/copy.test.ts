@@ -85,6 +85,8 @@ describe('patchManagedDoc', () => {
     const content = await readFile(join(dest, 'AGENTS.md'), 'utf8');
     expect(content).toContain('<!-- dokai:start -->');
     expect(content).toContain('<!-- dokai:end -->');
+    // Confirm the body is the AGENTS template (the .agents skill paths), not the CLAUDE one.
+    expect(content).toContain('.agents/skills/dokai-docs');
   });
 
   it('creates CLAUDE.md with a managed dokai block when none exists', async () => {
