@@ -35,6 +35,17 @@ describe('buildScalarConfig', () => {
     expect(cfg['proxyUrl']).toBeUndefined();
     expect(cfg['hideTestRequestButton']).toBe(true);
   });
+  it('strips Scalar chrome (sidebar, search, dev tools, dark-mode toggle, Ask AI) and keeps the theme', () => {
+    const cfg = buildScalarConfig({ rawUrl: '/x', tryItOut: true, persistAuth: true });
+    expect(cfg['showSidebar']).toBe(false);
+    expect(cfg['hideSearch']).toBe(true);
+    expect(cfg['showDeveloperTools']).toBe('never');
+    expect(cfg['hideDarkModeToggle']).toBe(true);
+    expect(cfg['theme']).toBe('none');
+    const sources = cfg['sources'] as Array<{ url: string; agent: { disabled: boolean } }>;
+    expect(sources[0]?.url).toBe('/x');
+    expect(sources[0]?.agent.disabled).toBe(true);
+  });
 });
 
 describe('findSpecByRoute', () => {
