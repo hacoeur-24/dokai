@@ -13,6 +13,7 @@ import { CreateDocDialog } from './CreateDocDialog.js';
 import { AppHeader } from './AppHeader.js';
 import { useManifest, useRefresh, useSettings } from '../state.js';
 import { useThemeApply } from '../lib/theme.js';
+import { useScalarClient, planSidebarToggle } from '../lib/useScalarClient.js';
 import { saveUserSettings } from '../lib/api.js';
 import { cn } from '../lib/cn.js';
 import { useAutoHideScroll } from '../lib/useAutoHideScroll.js';
@@ -25,6 +26,10 @@ export function Layout() {
   const t = useT();
   const sidebarScrollRef = useAutoHideScroll<HTMLDivElement>();
   useThemeApply(settings.data?.project ?? null, settings.data?.user ?? null);
+
+  // Scalar's "Test Request" modal and the sidebar are mutually exclusive: opening the client
+  // collapses the sidebar; re-opening the sidebar closes the client.
+  const { clientOpen, closeClient } = useScalarClient();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -68,15 +73,24 @@ export function Layout() {
       .catch((err: unknown) => console.error('Failed to persist sidebar state:', err));
   };
 
-  const toggleCollapsed = (): void => setCollapsedAndPersist(!collapsed);
+  // The sidebar reads as collapsed whenever the user collapsed it OR the Test Request client is
+  // open, so opening the client tucks the sidebar away without clobbering the saved preference.
+  const effectiveCollapsed = collapsed || clientOpen;
+
+  const handleToggleSidebar = (): void => {
+    const plan = planSidebarToggle(clientOpen, collapsed);
+    if (plan.closeClient) closeClient();
+    if (plan.nextCollapsed !== collapsed) setCollapsedAndPersist(plan.nextCollapsed);
+  };
 
   const handleMainClick = (): void => {
+    if (clientOpen) return;
     if (autoCollapse && !collapsed) setCollapsedAndPersist(true);
   };
 
   // Use a ref so the keyboard handler doesn't need to re-bind every time settings load.
-  const toggleRef = useRef(toggleCollapsed);
-  toggleRef.current = toggleCollapsed;
+  const toggleRef = useRef(handleToggleSidebar);
+  toggleRef.current = handleToggleSidebar;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -104,7 +118,7 @@ export function Layout() {
         logo={settings.data?.project.logo}
         onOpenSearch={() => setSearchOpen(true)}
         onToggleSidebar={() => toggleRef.current()}
-        sidebarCollapsed={collapsed}
+        sidebarCollapsed={effectiveCollapsed}
       />
 
       {/* Sidebar + main content row fills the remaining vertical space. */}
@@ -112,16 +126,16 @@ export function Layout() {
         <aside
           className={cn(
             'relative flex shrink-0 flex-col border-r transition-[width] duration-200 ease-out',
-            collapsed ? 'w-0 border-r-0' : 'w-72',
+            effectiveCollapsed ? 'w-0 border-r-0' : 'w-72',
           )}
           style={{ background: 'var(--color-bg-subtle)' }}
-          aria-hidden={collapsed}
+          aria-hidden={effectiveCollapsed}
         >
           {/* Inner panel hidden when collapsed so its content isn't focusable while off-screen. */}
           <div
             className={cn(
               'flex h-full w-72 flex-col transition-opacity duration-150',
-              collapsed ? 'pointer-events-none opacity-0' : 'opacity-100',
+              effectiveCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100',
             )}
           >
             <div className="mx-4 mt-4 mb-4 flex shrink-0 items-center gap-2">

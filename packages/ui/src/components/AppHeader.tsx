@@ -29,7 +29,7 @@ export function AppHeader({
     <header
       className="flex shrink-0 items-center gap-2 px-3 border-b"
       style={{
-        height: '52px',
+        height: 'var(--dokai-header-height)',
         background: 'var(--color-bg-subtle)',
         borderColor: 'var(--color-border)',
       }}
