@@ -62,6 +62,16 @@
   "doc.pdfFailed": "PDF download failed: {error}",
   "doc.downloadFailed": "Download failed: {error}",
 
+  "diagram.title": "Diagram",
+  "diagram.copySource": "Copy source",
+  "diagram.copied": "Copied!",
+  "diagram.downloadSvg": "SVG",
+  "diagram.downloadPng": "PNG",
+  "diagram.close": "Close",
+  "diagram.zoomIn": "Zoom in",
+  "diagram.zoomOut": "Zoom out",
+  "diagram.fit": "Fit to screen",
+
   "context.open": "Open",
   "context.edit": "Edit",
   "context.download": "Download",

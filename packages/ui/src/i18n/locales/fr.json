@@ -62,6 +62,16 @@
   "doc.pdfFailed": "Échec du téléchargement PDF : {error}",
   "doc.downloadFailed": "Échec du téléchargement : {error}",
 
+  "diagram.title": "Diagramme",
+  "diagram.copySource": "Copier la source",
+  "diagram.copied": "Copié !",
+  "diagram.downloadSvg": "SVG",
+  "diagram.downloadPng": "PNG",
+  "diagram.close": "Fermer",
+  "diagram.zoomIn": "Zoom avant",
+  "diagram.zoomOut": "Zoom arrière",
+  "diagram.fit": "Ajuster",
+
   "context.open": "Ouvrir",
   "context.edit": "Modifier",
   "context.download": "Télécharger",

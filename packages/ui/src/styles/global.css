@@ -167,7 +167,7 @@
 
 /* Markdown body container. Tight prose; documentation-tool spacing. */
 .prose-doc {
-  max-width: 70ch;
+  max-width: 76ch;
   font-size: 0.97rem;
   line-height: 1.7;
   color: var(--color-fg);
