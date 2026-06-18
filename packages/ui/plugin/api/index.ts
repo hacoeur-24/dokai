@@ -347,7 +347,6 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
         if (hop === MAX_REDIRECTS) {
           return sendError(res, 502, 'Too many redirects');
         }
-        // eslint-disable-next-line no-await-in-loop
         const response = await fetch(currentUrl, {
           method: currentMethod,
           headers: forwardedHeaders,
