@@ -23,6 +23,13 @@ import {
   type SectionNode,
 } from 'dokai-core/node';
 import { resolveSpecContentType } from './openapi-raw.js';
+import {
+  buildAllowedHosts,
+  filterForwardHeaders,
+  isHostAllowed,
+  parseTargetUrl,
+  readRawBody,
+} from './openapi-proxy.js';
 
 export interface DokaiApiOptions {
   server: ViteDevServer;
@@ -270,6 +277,46 @@ export function mountDokaiApi({ server, repoRoot, mode }: DokaiApiOptions): void
     wrap(async (_req, res) => {
       const info = await detectRepo({ root: repoRoot });
       sendJson(res, info);
+    }),
+  );
+
+  server.middlewares.use(
+    '/api/openapi/proxy',
+    wrap(async (req, res) => {
+      if (mode !== 'dev') return sendError(res, 405, 'Try-it-out is only available in `dokai dev`');
+      const url = new URL(req.url ?? '/', 'http://x');
+      const target = parseTargetUrl(url.searchParams.get('scalar_url'));
+      if (!target) return sendError(res, 400, 'Missing or invalid ?scalar_url=');
+
+      const loaded = await loadSettings(dokaiRoot);
+      const { specs } = await scanOpenApiSpecs({ dokaiRoot, dir: loaded.project.openapi.dir });
+      const allowed = buildAllowedHosts({
+        settingsHosts: loaded.project.openapi.allowedHosts,
+        specHosts: specs.flatMap((s) => s.serverHosts),
+      });
+      if (!isHostAllowed(target.hostname, allowed)) {
+        return sendError(
+          res,
+          403,
+          `Host "${target.hostname}" is not allowed. Add it to settings.json openapi.allowedHosts.`,
+        );
+      }
+
+      const method = (req.method ?? 'GET').toUpperCase();
+      const hasBody = method !== 'GET' && method !== 'HEAD';
+      const body = hasBody ? await readRawBody(req, 10 * 1024 * 1024) : undefined;
+
+      const upstream = await fetch(target, {
+        method,
+        headers: filterForwardHeaders(req.headers),
+        body,
+      });
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      res.statusCode = upstream.status;
+      const ct = upstream.headers.get('content-type');
+      if (ct) res.setHeader('Content-Type', ct);
+      res.setHeader('Cache-Control', 'no-store');
+      res.end(buf);
     }),
   );
 
