@@ -27,6 +27,23 @@ beforeAll(async () => {
     join(dokaiRoot, 'packages', 'web', 'overview.md'),
     `---\ntitle: Web\ndescription: Web overview\n---\n\n# Web\n`,
   );
+
+  // A section folder with a _section.json but no markdown docs — mirrors the scaffolded
+  // DOKAI/openapi/ folder. It must be pruned so the sidebar never shows an empty folder.
+  await mkdir(join(dokaiRoot, 'empty'), { recursive: true });
+  await writeFile(
+    join(dokaiRoot, 'empty', '_section.json'),
+    JSON.stringify({ title: 'Empty APIs' }),
+  );
+
+  // A section whose only descendant is itself doc-less — the whole subtree is hollow and
+  // must be pruned recursively (parent and child both removed).
+  await mkdir(join(dokaiRoot, 'hollow', 'inner'), { recursive: true });
+  await writeFile(join(dokaiRoot, 'hollow', '_section.json'), JSON.stringify({ title: 'Hollow' }));
+  await writeFile(
+    join(dokaiRoot, 'hollow', 'inner', '_section.json'),
+    JSON.stringify({ title: 'Inner' }),
+  );
 });
 
 afterAll(async () => {
@@ -51,6 +68,19 @@ describe('scanDokai', () => {
     const packagesSection = tree.sections.find((s) => s.relativePath === 'packages');
     const webSection = packagesSection?.sections.find((s) => s.relativePath === 'packages/web');
     expect(webSection?.docs[0]?.workspace).toBe('web');
+  });
+
+  it('prunes sections that contain no docs in their entire subtree', async () => {
+    const tree = await scanDokai({ dokaiRoot });
+    expect(tree.sections.find((s) => s.relativePath === 'empty')).toBeUndefined();
+    expect(tree.sections.find((s) => s.relativePath === 'hollow')).toBeUndefined();
+  });
+
+  it('keeps intermediate sections that have a doc-bearing subsection', async () => {
+    const tree = await scanDokai({ dokaiRoot });
+    const packagesSection = tree.sections.find((s) => s.relativePath === 'packages');
+    expect(packagesSection).toBeDefined();
+    expect(packagesSection?.sections.some((s) => s.relativePath === 'packages/web')).toBe(true);
   });
 
   it('computes deterministic routes', async () => {

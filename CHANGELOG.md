@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.1.1 — 2026-06-24
+
+- **No more empty "APIs" folder:** `dokai init` no longer scaffolds a `DOKAI/openapi/_section.json`,
+  so the OpenAPI directory is surfaced only as the populated "APIs" sidebar group (built from the
+  scanned specs) instead of also appearing as an empty docs-tree folder beside it. The section tree
+  now prunes any folder with no docs anywhere in its subtree, so already-initialized repos get the
+  fix without re-running `init` — doc-bearing folders are always preserved.
+- **Search filters — tags wrap individually:** in the search palette filter bar, tags now flow on
+  the same row right after the Status / Version dropdowns and break to a new line only when they
+  reach the row edge, instead of the whole tag group dropping to the next line as a block.
+- **Search filters — compact dropdowns:** the Status / Version dropdowns use a smaller height tuned
+  to sit alongside the tag chips, so the filter bar reads as one coherent row (the shared form
+  controls on the settings page are unchanged).
+- **Tooltips read as a line, not a card:** tooltip bubbles now size to their content on a single
+  tight line and wrap only once they exceed a comfortable width, instead of shrink-wrapping into a
+  narrow, tall card.
+- **Custom sidebar tooltips:** hovering a document, folder, or API spec row now shows the full name
+  in DOKAI's own tooltip (rendered in a portal so it escapes the sidebar's scroll clipping) rather
+  than the browser's native title, and only when the name is actually truncated. The folder
+  expand/collapse hint is preserved for screen readers via `aria-label`.
+
 ## v1.1.0 — 2026-06-17
 
 - **Agent assets v2:** the single `dokai` skill is split into two focused skills — `dokai-docs`

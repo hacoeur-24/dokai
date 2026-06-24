@@ -5,6 +5,7 @@ import type { SectionNode } from 'dokai-core';
 import { useManifest, useSettings } from '../state.js';
 import { cn } from '../lib/cn.js';
 import { DocContextMenu } from './DocContextMenu.js';
+import { OverflowTooltip } from './Tooltip.js';
 import { useT } from '../i18n/index.js';
 
 const OVERRIDES_KEY = 'dokai:sidebar:folderOverrides';
@@ -171,7 +172,7 @@ function ApiNavGroup() {
                 ) : (
                   <Globe className="dokai-sidebar-row-icon" />
                 )}
-                <span className="dokai-sidebar-row-title">{spec.title}</span>
+                <OverflowTooltip text={spec.title} className="dokai-sidebar-row-title" />
               </NavLink>
             </li>
           ))}
@@ -210,7 +211,7 @@ function SectionEntry(props: SectionEntryProps) {
             onClick={() => onToggle(section.relativePath, collapsed)}
             className="dokai-sidebar-folder-toggle"
             aria-expanded={!collapsed}
-            title={
+            aria-label={
               collapsed
                 ? t('sidebar.expandFolder', { folder: title })
                 : t('sidebar.collapseFolder', { folder: title })
@@ -224,7 +225,7 @@ function SectionEntry(props: SectionEntryProps) {
             ) : (
               <FolderOpen className="dokai-sidebar-folder-icon" />
             )}
-            <span className="min-w-0 flex-1 truncate text-left">{title}</span>
+            <OverflowTooltip text={title} className="min-w-0 flex-1 truncate text-left" />
           </button>
           {onAddInFolder && (
             <button
@@ -262,7 +263,10 @@ function SectionEntry(props: SectionEntryProps) {
                       attribute for active styling instead. */}
                   <NavLink to={doc.route} end className="dokai-sidebar-row">
                     <FileText className="dokai-sidebar-row-icon" />
-                    <span className="dokai-sidebar-row-title">{doc.frontmatter.title}</span>
+                    <OverflowTooltip
+                      text={doc.frontmatter.title}
+                      className="dokai-sidebar-row-title"
+                    />
                     <span className="dokai-sidebar-row-meta">
                       {showStatus && doc.frontmatter.status && (
                         <SidebarStatusBadge status={doc.frontmatter.status} />
