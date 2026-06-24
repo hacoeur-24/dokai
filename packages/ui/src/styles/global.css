@@ -450,6 +450,13 @@ input[type='color'].dokai-control {
   padding: 0.125rem;
   cursor: pointer;
 }
+/* Compact control variant for dense toolbars (e.g. the search filter bar), where the standard
+   2.25rem height looks oversized next to the small tag chips. Text stays legible at 0.75rem. */
+.dokai-control--sm {
+  height: 1.625rem;
+  padding: 0 0.4rem;
+  font-size: 0.75rem;
+}
 
 /* Custom checkbox to match the height of other controls and use the accent color. */
 .dokai-checkbox {
@@ -883,7 +890,11 @@ milkdown-block-handle {
   padding: 0.4rem 0.6rem;
   font-size: 0.72rem;
   line-height: 1.4;
-  max-width: 18rem;
+  /* Size to the content so short text stays on one tight line instead of shrink-wrapping into a
+     narrow, tall card; only wrap (break onto new lines) once the text exceeds a comfortable width. */
+  width: max-content;
+  max-width: 22rem;
+  overflow-wrap: break-word;
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
   z-index: 50;
 }

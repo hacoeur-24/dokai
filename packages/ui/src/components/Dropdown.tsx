@@ -19,6 +19,11 @@ export interface DropdownProps<T extends string> {
   className?: string;
   /** Span the container width (use when replacing a full-width <select>). */
   fullWidth?: boolean;
+  /**
+   * Trigger size. Defaults to `'md'` (the shared form-control height). `'sm'` is a compact variant
+   * for dense toolbars such as the search filter bar, where the standard height dwarfs the chips.
+   */
+  size?: 'sm' | 'md';
 }
 
 /**
@@ -33,6 +38,7 @@ export function Dropdown<T extends string>({
   disabled = false,
   className,
   fullWidth = false,
+  size = 'md',
 }: DropdownProps<T>) {
   const selected = options.find((o) => o.value === value);
   const label = selected?.label ?? placeholder ?? value;
@@ -44,12 +50,22 @@ export function Dropdown<T extends string>({
         <button
           type="button"
           disabled={disabled}
-          className={['dokai-control', 'dokai-select-trigger', className].filter(Boolean).join(' ')}
+          className={[
+            'dokai-control',
+            size === 'sm' && 'dokai-control--sm',
+            'dokai-select-trigger',
+            className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
           style={fullWidth ? { width: '100%' } : undefined}
         >
           {icon != null && <span className="dokai-select-trigger__icon">{icon}</span>}
           <span className="dokai-select-trigger__label">{label}</span>
-          <ChevronDown className="dokai-select-trigger__chevron h-3.5 w-3.5" aria-hidden="true" />
+          <ChevronDown
+            className={`dokai-select-trigger__chevron ${size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5'}`}
+            aria-hidden="true"
+          />
         </button>
       </DropdownMenu.Trigger>
 

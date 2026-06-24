@@ -113,7 +113,19 @@ function buildSectionTree(
   }
 
   sortTree(root);
+  pruneEmptySections(root);
   return root;
+}
+
+/**
+ * Remove sections that contain no docs anywhere in their subtree. A `_section.json` with no
+ * accompanying markdown (e.g. the scaffolded DOKAI/openapi/ folder, which is surfaced via the
+ * OpenAPI spec list rather than the docs tree) would otherwise render as an empty sidebar folder.
+ * The root is never pruned. Returns whether `section` retains any docs after pruning its children.
+ */
+function pruneEmptySections(section: SectionNode): boolean {
+  section.sections = section.sections.filter((child) => pruneEmptySections(child));
+  return section.docs.length > 0 || section.sections.length > 0;
 }
 
 function sortTree(section: SectionNode): void {

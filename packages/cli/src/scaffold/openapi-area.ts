@@ -7,14 +7,6 @@ export interface ScaffoldOpenApiResult {
   skipped: string[];
 }
 
-const SECTION_JSON = {
-  title: 'APIs',
-  description: 'OpenAPI specifications, explorable and testable from the DOKAI UI.',
-  tags: ['api'],
-  order: 50,
-  icon: 'webhook',
-};
-
 const PETSTORE_YAML = `openapi: 3.1.0
 info:
   title: Petstore API
@@ -59,13 +51,18 @@ async function writeOnce(
   written.push(path);
 }
 
-/** Seed DOKAI/openapi/ with a section marker and a sample spec. Idempotent. */
+/**
+ * Seed DOKAI/openapi/ with a sample spec. Idempotent.
+ *
+ * No `_section.json` is written here on purpose: the openapi directory is surfaced in the sidebar
+ * as a dedicated API group (built from the scanned specs), not as a docs-tree section. Writing a
+ * `_section.json` would make scanDokai emit an empty "APIs" folder alongside that group.
+ */
 export async function scaffoldOpenApiArea(opts: { dokaiRoot: string }): Promise<ScaffoldOpenApiResult> {
   const written: string[] = [];
   const skipped: string[] = [];
   const dir = join(opts.dokaiRoot, 'openapi');
 
-  await writeOnce(join(dir, '_section.json'), `${JSON.stringify(SECTION_JSON, null, 2)}\n`, written, skipped);
   await writeOnce(join(dir, 'petstore.yaml'), PETSTORE_YAML, written, skipped);
 
   return { written, skipped };

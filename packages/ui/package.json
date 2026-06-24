@@ -1,6 +1,6 @@
 {
   "name": "dokai-ui",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "DOKAI documentation UI (React + Vite + Tailwind + ShadCN) and the Vite plugin that mounts /api middleware in dev and produces a static build.",
   "type": "module",
@@ -50,6 +50,7 @@
     "@scalar/api-reference": "^1.60.0",
     "@radix-ui/react-context-menu": "^2.2.4",
     "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-tooltip": "^1.2.10",
     "chokidar": "^4.0.3",
     "chrome-launcher": "^1.1.2",
     "puppeteer-core": "^23.10.0",

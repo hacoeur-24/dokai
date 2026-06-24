@@ -5,6 +5,7 @@ import { App } from './App.js';
 import { DokaiProvider } from './state.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { ToastProvider } from './components/Toast.js';
+import { TooltipProvider } from './components/Tooltip.js';
 import './styles/global.css';
 
 const rootElement = document.getElementById('root');
@@ -17,9 +18,11 @@ createRoot(rootElement).render(
     <ErrorBoundary>
       <ToastProvider>
         <DokaiProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <TooltipProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </TooltipProvider>
         </DokaiProvider>
       </ToastProvider>
     </ErrorBoundary>

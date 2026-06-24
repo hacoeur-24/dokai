@@ -200,34 +200,28 @@ export function SearchPalette({
                 style={{ background: 'var(--color-border)' }}
               />
             )}
-            {allTags.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1">
-                {allTags.slice(0, 12).map((t) => {
-                  const active = activeTags.includes(t);
-                  return (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => toggleTag(t)}
-                      className="cursor-pointer"
-                    >
-                      <span
-                        className="inline-flex items-center rounded-full border px-2 py-0.5 text-[0.7rem]"
-                        style={{
-                          background: active
-                            ? 'color-mix(in oklch, var(--color-accent) 18%, transparent)'
-                            : 'var(--color-bg-subtle)',
-                          color: active ? 'var(--color-accent)' : 'var(--color-fg-muted)',
-                          borderColor: active ? 'var(--color-accent)' : undefined,
-                        }}
-                      >
-                        {t}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            {/* Tags are rendered as direct children of the filter row (not wrapped in their own
+                container) so each chip is its own flex item: they flow after the dropdown filters
+                and wrap individually at the row edge, instead of the whole group dropping a line. */}
+            {allTags.slice(0, 12).map((t) => {
+              const active = activeTags.includes(t);
+              return (
+                <button key={t} type="button" onClick={() => toggleTag(t)} className="cursor-pointer">
+                  <span
+                    className="inline-flex items-center rounded-full border px-2 py-0.5 text-[0.7rem]"
+                    style={{
+                      background: active
+                        ? 'color-mix(in oklch, var(--color-accent) 18%, transparent)'
+                        : 'var(--color-bg-subtle)',
+                      color: active ? 'var(--color-accent)' : 'var(--color-fg-muted)',
+                      borderColor: active ? 'var(--color-accent)' : undefined,
+                    }}
+                  >
+                    {t}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -316,6 +310,7 @@ function DropdownFilter({
         value={value ?? ''}
         options={dropdownOptions}
         onChange={(v) => onChange(v || null)}
+        size="sm"
       />
     </label>
   );
